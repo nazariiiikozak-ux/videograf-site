@@ -1,6 +1,6 @@
 // Vercel Serverless Function: /api/slots
-// Public. Returns free (available and not-yet-booked) future slots for the site calendar.
-// Response: { ok: true, slots: { "2026-08-12": ["10:00","14:00"], ... } }
+// Public. Returns future slots (with booked status) for the site calendar.
+// Response: { ok: true, slots: { "2026-08-12": [ {t:"10:00",b:false}, {t:"13:00",b:true} ], ... } }
 
 import { Redis } from '@upstash/redis';
 
@@ -31,9 +31,9 @@ export default async function handler(req, res) {
         redis.smembers('avail:' + date),
         redis.smembers('booked:' + date),
       ]);
+      if (!avail || !avail.length) continue;
       const bookedSet = new Set(booked || []);
-      const free = (avail || []).filter((t) => !bookedSet.has(t)).sort();
-      if (free.length) slots[date] = free;
+      slots[date] = avail.slice().sort().map((t) => ({ t, b: bookedSet.has(t) }));
     }
 
     res.setHeader('Cache-Control', 'no-store');
