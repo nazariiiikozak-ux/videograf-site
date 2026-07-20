@@ -18,7 +18,7 @@
   h2{ font-size:15px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ember-2); margin:0 0 12px; }
   p.sub{ color:var(--ink-mute); font-size:14px; margin-bottom:18px; }
   input, button{ font:inherit; }
-  input[type=password], input[type=date], input[type=time]{
+  input[type=password], input[type=date]{
     background:rgba(243,236,226,0.05); border:1px solid var(--line); border-radius:8px;
     padding:11px 13px; color:var(--ink); font-size:15px; }
   input:focus{ outline:none; border-color:var(--ember-2); }
@@ -27,34 +27,41 @@
   button:hover{ background:var(--ember-2); }
   button.ghost{ background:transparent; color:var(--ink-dim); border:1px solid var(--line); }
   button.ghost:hover{ background:rgba(243,236,226,0.06); color:var(--ink); }
-  .card{ background:var(--bg-2); border:1px solid var(--line); border-radius:14px; padding:26px; }
+  button.sm{ padding:5px 11px; font-size:12px; }
+  .card{ background:var(--bg-2); border:1px solid var(--line); border-radius:14px; padding:24px; }
   .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .err{ color:var(--err); font-size:14px; min-height:18px; margin-top:8px; }
-  .ok{ color:var(--ok); }
   section{ margin-top:26px; }
-  .date-block{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px; background:var(--bg-2); }
-  .date-block h3{ font-size:16px; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
-  .date-block h3 .count{ font-size:12px; color:var(--ink-mute); font-weight:400; }
-  .slots{ display:flex; flex-wrap:wrap; gap:8px; }
-  .slot{ display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:999px;
-    padding:6px 6px 6px 14px; font-size:14px; }
-  .slot.free{ color:var(--ink); }
-  .slot.booked{ border-color:rgba(224,164,104,0.4); background:rgba(193,112,47,0.10); }
-  .slot .x{ width:24px; height:24px; border-radius:50%; border:1px solid var(--line); background:transparent;
-    color:var(--ink-mute); font-size:13px; line-height:1; padding:0; display:inline-flex; align-items:center; justify-content:center; }
-  .slot .x:hover{ color:var(--err); border-color:var(--err); background:transparent; }
-  .booking{ margin-top:10px; padding:12px 14px; border:1px dashed rgba(224,164,104,0.35); border-radius:10px;
-    font-size:14px; color:var(--ink-dim); }
-  .booking b{ color:var(--ink); }
-  .booking .time-tag{ color:var(--ember-2); font-weight:600; }
-  .empty{ color:var(--ink-mute); font-size:14px; }
   .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
-  .hint{ color:var(--ink-mute); font-size:13px; margin-top:6px; }
+  .hint{ color:var(--ink-mute); font-size:13px; margin:6px 0 14px; }
+
+  .hours{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .hour{ border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:14px; cursor:pointer;
+    background:rgba(243,236,226,0.04); color:var(--ink); font-variant-numeric:tabular-nums;
+    display:inline-flex; align-items:center; gap:7px; transition:border-color .2s, background .2s, color .2s; }
+  .hour.free:hover{ border-color:var(--ember-2); }
+  .hour.blocked{ border-style:dashed; color:var(--ink-mute); opacity:0.75; }
+  .hour.booked{ border-color:rgba(224,164,104,0.4); background:rgba(193,112,47,0.12); cursor:default; }
+  .hour small{ font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-mute); }
+
+  .day-off{ margin-top:16px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .chip{ display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:999px;
+    padding:6px 6px 6px 14px; font-size:14px; }
+  .chip .x{ width:24px; height:24px; border-radius:50%; border:1px solid var(--line); background:transparent;
+    color:var(--ink-mute); font-size:13px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+  .chip .x:hover{ color:var(--err); border-color:var(--err); background:transparent; }
+
+  .booking{ border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px;
+    display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
+  .booking .when{ color:var(--ember-2); font-weight:600; }
+  .booking .who{ color:var(--ink); margin-top:2px; }
+  .booking .msg{ color:var(--ink-dim); font-size:13px; margin-top:4px; }
+  .empty{ color:var(--ink-mute); font-size:14px; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login" class="card" style="max-width:420px; margin:60px auto;">
   <h1>&#1040;&#1076;&#1084;&#1110;&#1085;&#1082;&#1072; &#1073;&#1088;&#1086;&#1085;&#1102;&#1074;&#1072;&#1085;&#1100;</h1>
   <p class="sub">&#1042;&#1074;&#1077;&#1076;&#1080; &#1087;&#1072;&#1088;&#1086;&#1083;&#1100; &#1076;&#1083;&#1103; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1091;.</p>
@@ -65,34 +72,38 @@
   <p class="err" id="loginErr"></p>
 </div>
 
-<!-- PANEL -->
 <div id="panel" style="display:none;">
   <div class="topbar">
     <h1>&#1041;&#1088;&#1086;&#1085;&#1102;&#1074;&#1072;&#1085;&#1085;&#1103; &#1079;&#1081;&#1086;&#1084;&#1086;&#1082;</h1>
     <button class="ghost" id="logoutBtn">&#1042;&#1080;&#1081;&#1090;&#1080;</button>
   </div>
 
+  <section>
+    <h2>&#1053;&#1072;&#1081;&#1073;&#1083;&#1080;&#1078;&#1095;&#1110; &#1073;&#1088;&#1086;&#1085;&#1110;</h2>
+    <div id="bookings"><p class="empty">&#1047;&#1072;&#1074;&#1072;&#1085;&#1090;&#1072;&#1078;&#1077;&#1085;&#1085;&#1103;&#8230;</p></div>
+  </section>
+
   <section class="card">
-    <h2>&#1044;&#1086;&#1076;&#1072;&#1090;&#1080; &#1074;&#1110;&#1083;&#1100;&#1085;&#1080;&#1081; &#1089;&#1083;&#1086;&#1090;</h2>
+    <h2>&#1050;&#1077;&#1088;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103; &#1076;&#1085;&#1077;&#1084;</h2>
+    <p class="hint">&#1050;&#1086;&#1078;&#1077;&#1085; &#1076;&#1077;&#1085;&#1100; &#1079;&#1072; &#1079;&#1072;&#1084;&#1086;&#1074;&#1095;&#1091;&#1074;&#1072;&#1085;&#1085;&#1103;&#1084; &#1074;&#1110;&#1083;&#1100;&#1085;&#1080;&#1081; 8:00&#8211;23:00. &#1054;&#1073;&#1077;&#1088;&#1080; &#1076;&#1072;&#1090;&#1091;, &#1097;&#1086;&#1073; &#1079;&#1072;&#1082;&#1088;&#1080;&#1090;&#1080; &#1076;&#1077;&#1085;&#1100; &#1072;&#1073;&#1086; &#1086;&#1082;&#1088;&#1077;&#1084;&#1110; &#1075;&#1086;&#1076;&#1080;&#1085;&#1080;.</p>
     <div class="row">
-      <input type="date" id="d" />
-      <input type="time" id="t" step="900" />
-      <button id="addBtn">&#1044;&#1086;&#1076;&#1072;&#1090;&#1080;</button>
+      <input type="date" id="dayPick" />
+      <button class="ghost" id="dayOffBtn">&#1047;&#1088;&#1086;&#1073;&#1080;&#1090;&#1080; &#1074;&#1080;&#1093;&#1110;&#1076;&#1085;&#1080;&#1084;</button>
     </div>
-    <p class="hint">&#1054;&#1073;&#1077;&#1088;&#1080; &#1076;&#1072;&#1090;&#1091; &#1081; &#1095;&#1072;&#1089; &#8212; &#1094;&#1077;&#1081; &#1089;&#1083;&#1086;&#1090; &#1089;&#1090;&#1072;&#1085;&#1077; &#1076;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1080;&#1084; &#1076;&#1083;&#1103; &#1073;&#1088;&#1086;&#1085;&#1102;&#1074;&#1072;&#1085;&#1085;&#1103; &#1085;&#1072; &#1089;&#1072;&#1081;&#1090;&#1110;.</p>
-    <p class="err" id="addMsg"></p>
+    <div id="dayHours" class="hours"></div>
+    <p class="err" id="dayMsg"></p>
   </section>
 
   <section>
-    <h2>&#1056;&#1086;&#1079;&#1082;&#1083;&#1072;&#1076; &#1110; &#1073;&#1088;&#1086;&#1085;&#1110;</h2>
-    <div id="list"><p class="empty">&#1047;&#1072;&#1074;&#1072;&#1085;&#1090;&#1072;&#1078;&#1077;&#1085;&#1085;&#1103;&#8230;</p></div>
+    <h2>&#1042;&#1080;&#1093;&#1110;&#1076;&#1085;&#1110; &#1076;&#1085;&#1110;</h2>
+    <div id="blockedDays" class="chips"></div>
   </section>
 </div>
 
 <script>
   const API = '/api/admin';
   let pw = '';
-
+  let data = { hours: [], today: '', blockedDays: [], blockedHours: {}, bookings: [] };
   const $ = (id) => document.getElementById(id);
 
   async function api(method, body) {
@@ -101,15 +112,25 @@
       headers: { 'Content-Type': 'application/json', 'x-admin-password': pw },
       body: body ? JSON.stringify(body) : undefined,
     });
-    let data = {};
-    try { data = await res.json(); } catch (_) {}
-    return { status: res.status, ...data };
+    let d = {};
+    try { d = await res.json(); } catch (_) {}
+    return { status: res.status, ...d };
   }
 
-  function enter(dates) {
-    $('login').style.display = 'none';
-    $('panel').style.display = 'block';
-    render(dates);
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+  function pretty(iso) { const [y, m, d] = iso.split('-'); return d + '.' + m + '.' + y; }
+
+  function store(res) {
+    data = {
+      hours: res.hours || [],
+      today: res.today || '',
+      blockedDays: res.blockedDays || [],
+      blockedHours: res.blockedHours || {},
+      bookings: res.bookings || [],
+    };
   }
 
   async function login() {
@@ -118,7 +139,11 @@
     const r = await api('GET');
     if (r.ok) {
       sessionStorage.setItem('nk_pw', pw);
-      enter(r.dates);
+      store(r);
+      $('login').style.display = 'none';
+      $('panel').style.display = 'block';
+      if (!$('dayPick').value) $('dayPick').value = data.today;
+      renderAll();
     } else {
       $('loginErr').textContent = r.error || '\u041d\u0435 \u0432\u0434\u0430\u043b\u043e\u0441\u044c \u0443\u0432\u0456\u0439\u0442\u0438';
     }
@@ -126,105 +151,114 @@
 
   $('loginBtn').onclick = login;
   $('pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
-
   $('logoutBtn').onclick = () => {
-    sessionStorage.removeItem('nk_pw');
-    pw = '';
-    $('panel').style.display = 'none';
-    $('login').style.display = 'block';
-    $('pw').value = '';
+    sessionStorage.removeItem('nk_pw'); pw = '';
+    $('panel').style.display = 'none'; $('login').style.display = 'block'; $('pw').value = '';
   };
 
-  $('addBtn').onclick = async () => {
-    const date = $('d').value;
-    const time = $('t').value;
-    $('addMsg').textContent = '';
-    if (!date || !time) { $('addMsg').textContent = '\u0412\u043a\u0430\u0436\u0438 \u0434\u0430\u0442\u0443 \u0439 \u0447\u0430\u0441.'; return; }
-    const r = await api('POST', { action: 'addSlot', date, time });
-    if (r.ok) { $('t').value = ''; render(r.dates); }
-    else $('addMsg').textContent = r.error || '\u041f\u043e\u043c\u0438\u043b\u043a\u0430';
-  };
-
-  // event delegation for remove / cancel buttons
-  $('list').addEventListener('click', async (e) => {
-    const btn = e.target.closest('button[data-act]');
-    if (!btn) return;
-    const { act, date, time } = btn.dataset;
-    if (act === 'cancel' && !confirm('\u0421\u043a\u0430\u0441\u0443\u0432\u0430\u0442\u0438 \u0446\u044e \u0431\u0440\u043e\u043d\u044c? \u0421\u043b\u043e\u0442 \u0437\u043d\u043e\u0432\u0443 \u0441\u0442\u0430\u043d\u0435 \u0432\u0456\u043b\u044c\u043d\u0438\u043c.')) return;
-    const action = act === 'remove' ? 'removeSlot' : 'cancelBooking';
-    const r = await api('POST', { action, date, time });
-    if (r.ok) render(r.dates);
-    else alert(r.error || '\u041f\u043e\u043c\u0438\u043b\u043a\u0430');
-  });
-
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
-      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function bookedMap() {
+    const map = {}; // date -> Set(hours)
+    for (const b of data.bookings) {
+      map[b.date] = map[b.date] || new Set();
+      (b.times || []).forEach((t) => map[b.date].add(t));
+    }
+    return map;
   }
 
-  function prettyDate(iso) {
-    const [y, m, d] = iso.split('-');
-    return d + '.' + m + '.' + y;
+  function renderBookings() {
+    const el = $('bookings');
+    if (!data.bookings.length) { el.innerHTML = '<p class="empty">\u0411\u0440\u043e\u043d\u0435\u0439 \u043f\u043e\u043a\u0438 \u043d\u0435\u043c\u0430\u0454.</p>'; return; }
+    el.innerHTML = data.bookings.map((b) => {
+      const hrs = (b.times || []);
+      const when = hrs.length > 1 ? hrs[0] + '\u2013' + hrs[hrs.length - 1] + ' (' + hrs.length + ' \u0433\u043e\u0434)' : hrs[0];
+      return '<div class="booking">' +
+        '<div><div class="when">' + pretty(b.date) + ' \u00b7 ' + esc(when) + '</div>' +
+        '<div class="who"><b>' + esc(b.name) + '</b> \u00b7 ' + esc(b.contact) + '</div>' +
+        (b.message ? '<div class="msg">' + esc(b.message) + '</div>' : '') + '</div>' +
+        '<button class="ghost sm" data-cancel="' + b.date + '" data-times="' + esc(hrs.join(',')) + '">\u0421\u043a\u0430\u0441\u0443\u0432\u0430\u0442\u0438</button>' +
+        '</div>';
+    }).join('');
   }
 
-  function render(dates) {
-    const list = $('list');
-    const keys = Object.keys(dates || {}).sort();
-    if (!keys.length) {
-      list.innerHTML = '<p class="empty">\u0421\u043b\u043e\u0442\u0456\u0432 \u0449\u0435 \u043d\u0435\u043c\u0430. \u0414\u043e\u0434\u0430\u0439 \u043f\u0435\u0440\u0448\u0438\u0439 \u0432\u0456\u043b\u044c\u043d\u0438\u0439 \u0441\u043b\u043e\u0442 \u0432\u0438\u0449\u0435.</p>';
+  function renderDay() {
+    const date = $('dayPick').value;
+    const el = $('dayHours');
+    const offBtn = $('dayOffBtn');
+    if (!date) { el.innerHTML = ''; return; }
+    const isOff = data.blockedDays.includes(date);
+    offBtn.textContent = isOff ? '\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0434\u0435\u043d\u044c' : '\u0417\u0440\u043e\u0431\u0438\u0442\u0438 \u0432\u0438\u0445\u0456\u0434\u043d\u0438\u043c';
+    if (isOff) {
+      el.innerHTML = '<p class="empty">\u0414\u0435\u043d\u044c \u043f\u043e\u0437\u043d\u0430\u0447\u0435\u043d\u043e \u0432\u0438\u0445\u0456\u0434\u043d\u0438\u043c \u2014 \u0439\u043e\u0433\u043e \u043d\u0435 \u043f\u043e\u043a\u0430\u0437\u0443\u044e\u0442\u044c \u043d\u0430 \u0441\u0430\u0439\u0442\u0456.</p>';
       return;
     }
-    let html = '';
-    for (const date of keys) {
-      const info = dates[date] || {};
-      const slots = (info.slots || []).slice().sort();
-      const bookings = info.bookings || {};
-      const bookedTimes = Object.keys(bookings);
-      const total = new Set([...slots, ...bookedTimes]).size;
-
-      html += '<div class="date-block">';
-      html += '<h3>' + prettyDate(date) + ' <span class="count">' + total + ' \u0441\u043b\u043e\u0442(\u0456\u0432)</span></h3>';
-      html += '<div class="slots">';
-      for (const t of slots) {
-        const isBooked = !!bookings[t];
-        if (isBooked) {
-          html += '<span class="slot booked"><span class="time-tag">' + esc(t) + '</span> \u0437\u0430\u0439\u043d\u044f\u0442\u043e</span>';
-        } else {
-          html += '<span class="slot free">' + esc(t) +
-            ' <button class="x" data-act="remove" data-date="' + date + '" data-time="' + esc(t) + '" title="\u041f\u0440\u0438\u0431\u0440\u0430\u0442\u0438">\u2715</button></span>';
-        }
-      }
-      // booked times that are no longer in the availability list
-      for (const t of bookedTimes) {
-        if (!slots.includes(t)) {
-          html += '<span class="slot booked"><span class="time-tag">' + esc(t) + '</span> \u0437\u0430\u0439\u043d\u044f\u0442\u043e</span>';
-        }
-      }
-      html += '</div>';
-
-      for (const t of bookedTimes.sort()) {
-        const b = bookings[t] || {};
-        html += '<div class="booking">' +
-          '<span class="time-tag">' + esc(t) + '</span> \u2014 <b>' + esc(b.name) + '</b>, ' + esc(b.contact) +
-          (b.message ? '<br>' + esc(b.message) : '') +
-          ' <button class="ghost" data-act="cancel" data-date="' + date + '" data-time="' + esc(t) + '" style="padding:4px 10px; font-size:12px; margin-left:6px;">\u0421\u043a\u0430\u0441\u0443\u0432\u0430\u0442\u0438 \u0431\u0440\u043e\u043d\u044c</button>' +
-          '</div>';
-      }
-      html += '</div>';
-    }
-    list.innerHTML = html;
+    const booked = (bookedMap()[date]) || new Set();
+    const blocked = new Set(data.blockedHours[date] || []);
+    el.innerHTML = data.hours.map((t) => {
+      if (booked.has(t)) return '<span class="hour booked">' + t + '<small>\u0431\u0440\u043e\u043d\u044c</small></span>';
+      if (blocked.has(t)) return '<span class="hour blocked" data-unblock="' + t + '">' + t + '<small>\u0437\u0430\u043a\u0440\u0438\u0442\u043e</small></span>';
+      return '<span class="hour free" data-block="' + t + '">' + t + '</span>';
+    }).join('');
   }
 
-  // auto-login from session
+  function renderBlockedDays() {
+    const el = $('blockedDays');
+    if (!data.blockedDays.length) { el.innerHTML = '<p class="empty">\u041d\u0435\u043c\u0430\u0454.</p>'; return; }
+    el.innerHTML = data.blockedDays.map((d) =>
+      '<span class="chip">' + pretty(d) +
+      ' <button class="x" data-unblockday="' + d + '" title="\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438">\u2715</button></span>'
+    ).join('');
+  }
+
+  function renderAll() { renderBookings(); renderDay(); renderBlockedDays(); }
+
+  async function act(body) {
+    const r = await api('POST', body);
+    if (r.ok) { store(r); renderAll(); }
+    else $('dayMsg').textContent = r.error || '\u041f\u043e\u043c\u0438\u043b\u043a\u0430';
+  }
+
+  $('dayPick').addEventListener('change', renderDay);
+  $('dayMsg') && ($('dayMsg').textContent = '');
+
+  $('dayOffBtn').onclick = () => {
+    const date = $('dayPick').value; if (!date) return;
+    const isOff = data.blockedDays.includes(date);
+    act({ action: isOff ? 'unblockDay' : 'blockDay', date });
+  };
+
+  $('dayHours').addEventListener('click', (e) => {
+    const date = $('dayPick').value;
+    const block = e.target.closest('[data-block]');
+    const unblock = e.target.closest('[data-unblock]');
+    if (block) act({ action: 'blockHour', date, time: block.dataset.block });
+    else if (unblock) act({ action: 'unblockHour', date, time: unblock.dataset.unblock });
+  });
+
+  $('blockedDays').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-unblockday]');
+    if (b) act({ action: 'unblockDay', date: b.dataset.unblockday });
+  });
+
+  $('bookings').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cancel]');
+    if (!b) return;
+    if (!confirm('\u0421\u043a\u0430\u0441\u0443\u0432\u0430\u0442\u0438 \u0446\u044e \u0431\u0440\u043e\u043d\u044c? \u0413\u043e\u0434\u0438\u043d\u0438 \u0437\u043d\u043e\u0432\u0443 \u0441\u0442\u0430\u043d\u0443\u0442\u044c \u0432\u0456\u043b\u044c\u043d\u0438\u043c\u0438.')) return;
+    act({ action: 'cancelBooking', date: b.dataset.cancel, times: b.dataset.times.split(',') });
+  });
+
   (function () {
     const saved = sessionStorage.getItem('nk_pw');
     if (saved) {
       pw = saved;
-      api('GET').then((r) => { if (r.ok) enter(r.dates); else sessionStorage.removeItem('nk_pw'); });
+      api('GET').then((r) => {
+        if (r.ok) {
+          store(r);
+          $('login').style.display = 'none'; $('panel').style.display = 'block';
+          if (!$('dayPick').value) $('dayPick').value = data.today;
+          renderAll();
+        } else sessionStorage.removeItem('nk_pw');
+      });
     }
-    // sensible default date = today
-    const today = new Date().toISOString().slice(0, 10);
-    $('d').value = today;
   })();
 </script>
 </body>
