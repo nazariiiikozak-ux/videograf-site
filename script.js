@@ -94,11 +94,15 @@ if (contactForm) {
   const submitBtn = contactForm.querySelector('.form__submit');
   const datesEl = document.getElementById('bookingDates');
   const timesEl = document.getElementById('bookingTimes');
+  const timesHintEl = document.getElementById('bookingTimesHint');
   const chosenEl = document.getElementById('bookingChosen');
+  const warnEl = document.getElementById('bookingWarn');
   const dateInput = document.getElementById('bookDate');
-  const timeInput = document.getElementById('bookTime');
+  const timesInput = document.getElementById('bookTimes');
 
-  let slots = {};
+  let slots = {};      // { iso: [ {t, b}, ... ] }
+  let selected = [];   // chosen times (contiguous, free)
+  let anchor = null;   // first tap of a range
 
   const WEEKDAYS = ['\u041d\u0434', '\u041f\u043d', '\u0412\u0442', '\u0421\u0440', '\u0427\u0442', '\u041f\u0442', '\u0421\u0431'];
   const MONTHS = ['\u0441\u0456\u0447', '\u043b\u044e\u0442', '\u0431\u0435\u0440', '\u043a\u0432\u0456', '\u0442\u0440\u0430', '\u0447\u0435\u0440', '\u043b\u0438\u043f', '\u0441\u0435\u0440', '\u0432\u0435\u0440', '\u0436\u043e\u0432', '\u043b\u0438\u0441', '\u0433\u0440\u0443'];
@@ -126,6 +130,7 @@ if (contactForm) {
       datesEl.innerHTML =
         '<p class="booking__hint">\u041d\u0430\u0440\u0430\u0437\u0456 \u0432\u0456\u043b\u044c\u043d\u0438\u0445 \u0434\u0430\u0442 \u043d\u0435\u043c\u0430\u0454 \u2014 \u043d\u0430\u043f\u0438\u0448\u0438 \u043d\u0430 \u043f\u043e\u0448\u0442\u0443 \u043d\u0438\u0436\u0447\u0435, \u0456 \u043c\u0438 \u0443\u0437\u0433\u043e\u0434\u0438\u043c\u043e \u0447\u0430\u0441.</p>';
       timesEl.hidden = true;
+      timesHintEl.hidden = true;
       return;
     }
     datesEl.innerHTML = dates
@@ -142,12 +147,42 @@ if (contactForm) {
       .join('');
   }
 
+  function dayList() {
+    return slots[dateInput.value] || [];
+  }
+
   function renderTimes(iso) {
-    const times = (slots[iso] || []).slice().sort();
-    timesEl.innerHTML = times
-      .map((t) => '<button type="button" class="booking__time" data-time="' + t + '">' + t + '</button>')
+    const list = slots[iso] || [];
+    timesEl.innerHTML = list
+      .map((s) =>
+        s.b
+          ? '<span class="booking__time booking__time--taken" aria-disabled="true">' + s.t + '<i>\u0437\u0430\u0439\u043d\u044f\u0442\u043e</i></span>'
+          : '<button type="button" class="booking__time" data-time="' + s.t + '">' + s.t + '</button>'
+      )
       .join('');
     timesEl.hidden = false;
+    timesHintEl.hidden = false;
+  }
+
+  function paintSelection() {
+    timesEl.querySelectorAll('.booking__time').forEach((el) => {
+      const t = el.dataset ? el.dataset.time : null;
+      el.classList.toggle('is-active', !!t && selected.includes(t));
+    });
+    timesInput.value = selected.join(',');
+    if (!selected.length) { chosenEl.hidden = true; return; }
+    const [y, m, d] = dateInput.value.split('-');
+    const label = selected.length === 1
+      ? selected[0]
+      : selected[0] + '\u2013' + selected[selected.length - 1] + ' \u00b7 ' + selected.length + ' \u0433\u043e\u0434';
+    chosenEl.textContent = '\u041e\u0431\u0440\u0430\u043d\u043e: ' + d + '.' + m + '.' + y + ', ' + label;
+    chosenEl.hidden = false;
+  }
+
+  function warn(msg) {
+    if (!msg) { warnEl.hidden = true; return; }
+    warnEl.textContent = msg;
+    warnEl.hidden = false;
   }
 
   datesEl.addEventListener('click', (e) => {
@@ -156,20 +191,44 @@ if (contactForm) {
     datesEl.querySelectorAll('.booking__date').forEach((b) => b.classList.remove('is-active'));
     btn.classList.add('is-active');
     dateInput.value = btn.dataset.date;
-    timeInput.value = '';
-    chosenEl.hidden = true;
+    selected = [];
+    anchor = null;
+    warn('');
     renderTimes(btn.dataset.date);
+    paintSelection();
   });
 
   timesEl.addEventListener('click', (e) => {
     const btn = e.target.closest('.booking__time');
-    if (!btn) return;
-    timesEl.querySelectorAll('.booking__time').forEach((b) => b.classList.remove('is-active'));
-    btn.classList.add('is-active');
-    timeInput.value = btn.dataset.time;
-    const [y, m, d] = dateInput.value.split('-');
-    chosenEl.textContent = '\u041e\u0431\u0440\u0430\u043d\u043e: ' + d + '.' + m + '.' + y + ' \u043e ' + btn.dataset.time;
-    chosenEl.hidden = false;
+    if (!btn || !btn.dataset || !btn.dataset.time) return; // ignore taken slots
+    const t = btn.dataset.time;
+    const list = dayList();
+    const idx = (x) => list.findIndex((s) => s.t === x);
+    warn('');
+
+    // second tap: form a contiguous range from the anchor
+    if (anchor !== null && selected.length === 1) {
+      const i = idx(anchor), j = idx(t);
+      if (i === -1 || j === -1) { anchor = t; selected = [t]; paintSelection(); return; }
+      if (i === j) { selected = []; anchor = null; paintSelection(); return; } // re-tap = clear
+      const lo = Math.min(i, j), hi = Math.max(i, j);
+      const range = list.slice(lo, hi + 1);
+      if (range.some((s) => s.b)) {
+        anchor = t; selected = [t]; paintSelection();
+        warn('\u041c\u0456\u0436 \u043d\u0438\u043c\u0438 \u0454 \u0437\u0430\u0439\u043d\u044f\u0442\u0430 \u0433\u043e\u0434\u0438\u043d\u0430 \u2014 \u043e\u0431\u0435\u0440\u0456\u0442\u044c \u0441\u0443\u0446\u0456\u043b\u044c\u043d\u0438\u0439 \u043f\u0440\u043e\u043c\u0456\u0436\u043e\u043a.');
+        return;
+      }
+      selected = range.map((s) => s.t);
+      anchor = null; // range done; next tap starts fresh
+      paintSelection();
+      return;
+    }
+
+    // first tap (or restart); re-tapping the single choice clears it
+    if (selected.length === 1 && selected[0] === t) { selected = []; anchor = null; paintSelection(); return; }
+    anchor = t;
+    selected = [t];
+    paintSelection();
   });
 
   contactForm.addEventListener('submit', async (e) => {
@@ -184,8 +243,8 @@ if (contactForm) {
       statusEl.classList.add('is-error');
       return;
     }
-    if (!data.date || !data.time) {
-      statusEl.textContent = '\u041e\u0431\u0435\u0440\u0438 \u0432\u0456\u043b\u044c\u043d\u0443 \u0434\u0430\u0442\u0443 \u0439 \u0447\u0430\u0441 \u0437\u0439\u043e\u043c\u043a\u0438.';
+    if (!data.date || !data.times) {
+      statusEl.textContent = '\u041e\u0431\u0435\u0440\u0438 \u0432\u0456\u043b\u044c\u043d\u0443 \u0434\u0430\u0442\u0443 \u0439 \u0445\u043e\u0447\u0430 \u0431 \u043e\u0434\u043d\u0443 \u0433\u043e\u0434\u0438\u043d\u0443.';
       statusEl.classList.add('is-error');
       return;
     }
@@ -203,11 +262,19 @@ if (contactForm) {
       try { result = await res.json(); } catch (_) {}
 
       if (res.status === 409) {
-        statusEl.textContent = result.error || '\u0426\u0435\u0439 \u0441\u043b\u043e\u0442 \u0449\u043e\u0439\u043d\u043e \u0437\u0430\u0439\u043d\u044f\u043b\u0438 \u2014 \u043e\u0431\u0435\u0440\u0438 \u0456\u043d\u0448\u0438\u0439.';
+        statusEl.textContent = result.error || '\u041e\u0434\u043d\u0443 \u0437 \u0433\u043e\u0434\u0438\u043d \u0449\u043e\u0439\u043d\u043e \u0437\u0430\u0439\u043d\u044f\u043b\u0438 \u2014 \u043e\u0431\u0435\u0440\u0438 \u0437\u043d\u043e\u0432\u0443.';
         statusEl.classList.add('is-error');
-        timeInput.value = '';
-        chosenEl.hidden = true;
+        selected = [];
+        anchor = null;
+        const keepDate = dateInput.value;
         await loadSlots();
+        if (keepDate && slots[keepDate]) {
+          const db = datesEl.querySelector('.booking__date[data-date="' + keepDate + '"]');
+          if (db) db.classList.add('is-active');
+          dateInput.value = keepDate;
+          renderTimes(keepDate);
+        }
+        paintSelection();
         return;
       }
       if (!res.ok || !result.ok) {
@@ -216,10 +283,15 @@ if (contactForm) {
 
       contactForm.reset();
       dateInput.value = '';
-      timeInput.value = '';
+      timesInput.value = '';
+      selected = [];
+      anchor = null;
       chosenEl.hidden = true;
+      warn('');
       timesEl.hidden = true;
-      statusEl.textContent = '\u0413\u043e\u0442\u043e\u0432\u043e! \u0421\u043b\u043e\u0442 \u0437\u0430\u0431\u0440\u043e\u043d\u044c\u043e\u0432\u0430\u043d\u043e \u2014 \u0437\u0432\u02bc\u044f\u0436\u0443\u0441\u044c \u0434\u043b\u044f \u043f\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043d\u043d\u044f.';
+      timesHintEl.hidden = true;
+      datesEl.querySelectorAll('.booking__date').forEach((b) => b.classList.remove('is-active'));
+      statusEl.textContent = '\u0413\u043e\u0442\u043e\u0432\u043e! \u0427\u0430\u0441 \u0437\u0430\u0431\u0440\u043e\u043d\u044c\u043e\u0432\u0430\u043d\u043e \u2014 \u0437\u0432\u02bc\u044f\u0436\u0443\u0441\u044c \u0434\u043b\u044f \u043f\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043d\u043d\u044f.';
       statusEl.classList.add('is-success');
       await loadSlots();
     } catch (err) {
