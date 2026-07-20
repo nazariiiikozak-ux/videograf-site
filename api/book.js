@@ -1,6 +1,6 @@
 // Vercel Serverless Function: /api/book
 // Public. Books a slot atomically (prevents double-booking) and notifies Telegram.
-// Body: { name, contact, message, date, time, honeypot }
+// Body: { name, contact, message, date, times (array or comma-string) | time, honeypot }
 
 import { Redis } from '@upstash/redis';
 
@@ -15,26 +15,38 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const { name, contact, message, date, time, honeypot } = req.body || {};
+  const { name, contact, message, date, time, times, honeypot } = req.body || {};
 
   // anti-spam trap
   if (honeypot) return res.status(200).json({ ok: true });
 
-  if (!name || !contact || !date || !time) {
-    return res.status(400).json({ ok: false, error: "\u0417\u0430\u043f\u043e\u0432\u043d\u0438 \u0456\u043c'\u044f, \u043a\u043e\u043d\u0442\u0430\u043a\u0442 \u0456 \u043e\u0431\u0435\u0440\u0438 \u0441\u043b\u043e\u0442" });
+  // normalize requested hours into a sorted, de-duplicated list
+  let list = Array.isArray(times) ? times : (typeof times === 'string' ? times.split(',') : (time ? [time] : []));
+  list = [...new Set(list.map((s) => String(s).trim()).filter(Boolean))].sort();
+
+  if (!name || !contact || !date || !list.length) {
+    return res.status(400).json({ ok: false, error: "\u0417\u0430\u043f\u043e\u0432\u043d\u0438 \u0456\u043c'\u044f, \u043a\u043e\u043d\u0442\u0430\u043a\u0442 \u0456 \u043e\u0431\u0435\u0440\u0438 \u0447\u0430\u0441" });
   }
 
   try {
-    // slot must currently be offered by the owner
-    const offered = await redis.sismember('avail:' + date, time);
-    if (!offered) {
-      return res.status(409).json({ ok: false, error: '\u0426\u0435\u0439 \u0441\u043b\u043e\u0442 \u0431\u0456\u043b\u044c\u0448\u0435 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0438\u0439' });
+    // every requested hour must currently be offered by the owner
+    for (const t of list) {
+      const offered = await redis.sismember('avail:' + date, t);
+      if (!offered) {
+        return res.status(409).json({ ok: false, error: '\u041e\u0434\u043d\u0430 \u0437 \u043e\u0431\u0440\u0430\u043d\u0438\u0445 \u0433\u043e\u0434\u0438\u043d \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430' });
+      }
     }
 
-    // atomic claim: SADD returns 1 only if this member was newly added
-    const claimed = await redis.sadd('booked:' + date, time);
-    if (claimed === 0) {
-      return res.status(409).json({ ok: false, error: '\u0426\u0435\u0439 \u0441\u043b\u043e\u0442 \u0449\u043e\u0439\u043d\u043e \u0437\u0430\u0439\u043d\u044f\u043b\u0438 \u2014 \u043e\u0431\u0435\u0440\u0438 \u0456\u043d\u0448\u0438\u0439' });
+    // atomic-ish multi-claim: SADD returns 1 only if newly added; roll back on any conflict
+    const claimed = [];
+    for (const t of list) {
+      const got = await redis.sadd('booked:' + date, t);
+      if (got === 1) {
+        claimed.push(t);
+      } else {
+        for (const rb of claimed) await redis.srem('booked:' + date, rb);
+        return res.status(409).json({ ok: false, error: '\u041e\u0434\u043d\u0443 \u0437 \u0433\u043e\u0434\u0438\u043d \u0449\u043e\u0439\u043d\u043e \u0437\u0430\u0439\u043d\u044f\u043b\u0438 \u2014 \u043e\u043d\u043e\u0432\u0438 \u0439 \u043e\u0431\u0435\u0440\u0438 \u0437\u043d\u043e\u0432\u0443' });
+      }
     }
 
     const booking = {
@@ -42,14 +54,16 @@ export default async function handler(req, res) {
       contact: String(contact),
       message: message ? String(message) : '',
       date,
-      time,
+      times: list,
       createdAt: new Date().toISOString(),
     };
 
-    await redis.set('booking:' + date + ':' + time, booking);
-    await redis.sadd('bookings:index', date + '|' + time);
+    for (const t of list) {
+      await redis.set('booking:' + date + ':' + t, { ...booking, time: t });
+      await redis.sadd('bookings:index', date + '|' + t);
+    }
 
-    // notify Telegram (do not fail the booking if this errors \u2014 the slot is already reserved)
+    // notify Telegram (do not fail the booking if this errors \u2014 the slots are already reserved)
     try {
       await notifyTelegram(booking);
     } catch (tgErr) {
@@ -72,11 +86,15 @@ async function notifyTelegram(b) {
   }
 
   const prettyDate = formatDate(b.date);
+  const hours = Array.isArray(b.times) ? b.times : [b.time];
+  const hoursLabel = hours.length > 1
+    ? `${hours[0]}\u2013${hours[hours.length - 1]} (${hours.length} \u0433\u043e\u0434): ${hours.join(', ')}`
+    : hours[0];
   const lines = [
     '\ud83d\udcc5 *\u041d\u043e\u0432\u0435 \u0431\u0440\u043e\u043d\u044e\u0432\u0430\u043d\u043d\u044f \u0437\u0439\u043e\u043c\u043a\u0438*',
     '',
     `*\u0414\u0430\u0442\u0430:* ${escapeMd(prettyDate)}`,
-    `*\u0427\u0430\u0441:* ${escapeMd(b.time)}`,
+    `*\u0427\u0430\u0441:* ${escapeMd(hoursLabel)}`,
     `*\u0406\u043c\u02bc\u044f:* ${escapeMd(b.name)}`,
     `*\u041a\u043e\u043d\u0442\u0430\u043a\u0442:* ${escapeMd(b.contact)}`,
   ];
