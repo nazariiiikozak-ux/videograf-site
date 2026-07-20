@@ -1,30 +1,18 @@
 // ===== рік у футері =====
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// ===== фейковий таймкод (декоративний, в дусі монтажера) =====
-const tcEl = document.getElementById('timecode');
-if (tcEl) {
-  let frame = 0;
-  const fps = 25;
-  setInterval(() => {
-    frame++;
-    const totalSeconds = Math.floor(frame / fps);
-    const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-    const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-    const s = String(totalSeconds % 60).padStart(2, '0');
-    const f = String(frame % fps).padStart(2, '0');
-    tcEl.textContent = `${h}:${m}:${s}:${f}`;
-  }, 1000 / fps);
-}
-
-// ===== живий годинник у куті героя =====
+// ===== живий годинник у куті героя (Варшава) =====
 const heroClock = document.getElementById('heroClock');
 if (heroClock) {
   const tick = () => {
     const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    heroClock.textContent = `${h}:${m}`;
+    const time = new Intl.DateTimeFormat('uk-UA', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Europe/Warsaw'
+    }).format(now);
+    heroClock.textContent = time;
   };
   tick();
   setInterval(tick, 1000 * 30);
@@ -48,7 +36,7 @@ if (burger && navMobile) {
 
 // ===== scroll reveal =====
 const revealTargets = document.querySelectorAll(
-  '.section__head, .reel__card, .about__media, .about__content, .services__row, .contact__title, .contact__email'
+  '.section__head, .reel__card, .about__media, .about__content, .services__row, .services__packages, .contact__title, .contact__email'
 );
 revealTargets.forEach(el => el.classList.add('reveal'));
 

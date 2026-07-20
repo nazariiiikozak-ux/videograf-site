@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ТВОЄ ІМ'Я — Відеограф</title>
-<meta name="description" content="Портфоліо відеографа. Зйомка, монтаж, кольорокорекція." />
+<title>Nazarii Kozak — Filmmaker</title>
+<meta name="description" content="Nazarii Kozak — filmmaker з Варшави. Зйомка, монтаж, кольорокорекція по всій Європі." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
 
 <!-- =============== NAV =============== -->
 <header class="nav">
-  <a href="#top" class="nav__mark">TI<span>.</span></a>
+  <a href="#top" class="nav__mark">NK<span>.</span></a>
 
   <nav class="nav__links">
     <a href="#reel">Реел</a>
@@ -26,7 +26,20 @@
     <a href="#contact">Контакт</a>
   </nav>
 
-  <div class="nav__tc" id="timecode" aria-hidden="true">00:00:00:00</div>
+  <div class="nav__right">
+    <div class="nav__socials" aria-label="Соціальні мережі">
+      <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+      </a>
+      <a href="#" target="_blank" rel="noopener" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.5 9.5l5 2.5-5 2.5v-5z" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="#" target="_blank" rel="noopener" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 4L2.5 11.5l6 2 2 6 3-4 4.5 3.5L21 4z"/><path d="M8.5 13.5L19 6"/></svg>
+      </a>
+    </div>
+    <a href="#contact" class="btn btn--nav">Замовити зйомку</a>
+  </div>
 
   <button class="nav__burger" id="burger" aria-label="Меню" aria-expanded="false">
     <span></span><span></span>
@@ -38,39 +51,50 @@
   <a href="#about">Про мене</a>
   <a href="#services">Послуги</a>
   <a href="#contact">Контакт</a>
+  <a href="#contact" class="btn btn--nav btn--mobile">Замовити зйомку</a>
+  <div class="nav__socials nav__socials--mobile" aria-label="Соціальні мережі">
+    <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+    </a>
+    <a href="#" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.5 9.5l5 2.5-5 2.5v-5z" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a href="#" target="_blank" rel="noopener" aria-label="Telegram">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 4L2.5 11.5l6 2 2 6 3-4 4.5 3.5L21 4z"/><path d="M8.5 13.5L19 6"/></svg>
+    </a>
+  </div>
 </div>
 
 <!-- =============== HERO =============== -->
 <section class="hero" id="top">
   <div class="hero__media">
-    <video class="hero__video" autoplay muted loop playsinline poster="assets/hero-poster.jpg">
-      <source src="assets/showreel.mp4" type="video/mp4" />
-    </video>
+    <!-- Статичний кадр шапки. Заміниш на своє фото — онови assets/hero-poster.jpg -->
+    <img class="hero__img" src="assets/hero-poster.jpg" alt="Nazarii Kozak — filmmaker" />
     <div class="hero__vignette"></div>
     <div class="hero__ember"></div>
   </div>
 
   <!-- кутові мітки в редакційному стилі -->
   <div class="hero__corner hero__corner--tl">
-    <span class="hero__corner-num">+380 00 000 00 00</span>
-    <span class="hero__corner-sub">Відеограф · Кольорист</span>
+    <span class="hero__corner-num">hello@nazariikozak.com</span>
+    <span class="hero__corner-sub">Filmmaker</span>
   </div>
   <div class="hero__corner hero__corner--tr">
-    <span class="hero__corner-num" id="heroClock">23:34</span>
-    <span class="hero__corner-sub">Зараз у Києві</span>
+    <span class="hero__corner-num" id="heroClock">--:--</span>
+    <span class="hero__corner-sub">Варшава · Європа</span>
   </div>
 
   <div class="hero__content">
     <h1 class="hero__title">
-      <span class="hero__title-line">ТВОЄ</span>
-      <span class="hero__title-line hero__title-line--ghost">ІМ'Я</span>
+      <span class="hero__title-line">NAZARII</span>
+      <span class="hero__title-line hero__title-line--ghost">KOZAK</span>
     </h1>
   </div>
 
   <div class="hero__foot">
     <p class="hero__tagline">
-      Лише я.<br>
-      Від зйомки до фінального кадру.<br>
+      Filmmaker з Варшави.<br>
+      Знімаю по всій Європі.<br>
       Завжди на зв'язку.
     </p>
     <a href="#reel" class="hero__scroll">
@@ -233,33 +257,42 @@
   <div class="section__head">
     <p class="section__tc">00:03</p>
     <h2 class="section__title">Послуги</h2>
+    <p class="section__note">Оператор — погодинна оплата. Є також пакетні пропозиції під конкретний проєкт.</p>
   </div>
 
   <div class="services__list">
     <div class="services__row">
       <span class="services__time">00:01</span>
-      <h3>Відеозйомка</h3>
-      <p>Зйомка на локації одним чи кількома операторами, світло, звук.</p>
-      <span class="services__price">від 6 000 ₴</span>
+      <h3>Оператор (погодинно)</h3>
+      <p>Зйомка на локації, робота одним чи кількома операторами, світло, звук.</p>
+      <a href="#contact" class="btn btn--outline">Подати заявку</a>
     </div>
     <div class="services__row">
       <span class="services__time">00:02</span>
       <h3>Монтаж</h3>
       <p>Збірка з чорнового матеріалу до фінального ролика, темп і структура.</p>
-      <span class="services__price">від 4 000 ₴</span>
+      <a href="#contact" class="btn btn--outline">Подати заявку</a>
     </div>
     <div class="services__row">
       <span class="services__time">00:03</span>
       <h3>Кольорокорекція</h3>
       <p>Кольорове рішення сцени, вирівнювання плану, фінальний ґрейд.</p>
-      <span class="services__price">від 2 500 ₴</span>
+      <a href="#contact" class="btn btn--outline">Подати заявку</a>
     </div>
     <div class="services__row">
       <span class="services__time">00:04</span>
       <h3>Повний цикл</h3>
       <p>Від сценарію та зйомки до монтажу, звуку й кольору — під ключ.</p>
-      <span class="services__price">індивідуально</span>
+      <a href="#contact" class="btn btn--outline">Подати заявку</a>
     </div>
+  </div>
+
+  <div class="services__packages">
+    <div class="services__packages-text">
+      <p class="services__packages-label">Пакетні пропозиції</p>
+      <h3>Готові пакети під весілля, бренд-контент і кліпи — деталі за запитом.</h3>
+    </div>
+    <a href="#contact" class="btn btn--fill">Обговорити проєкт</a>
   </div>
 </section>
 
@@ -268,18 +301,28 @@
   <div class="hero__ember hero__ember--contact"></div>
   <p class="section__tc">00:04</p>
   <h2 class="contact__title">Маєш<br>ідею?</h2>
-  <a href="mailto:hello@tvoyeimya.com" class="contact__email">hello@tvoyeimya.com</a>
+  <p class="contact__note">Опиши проєкт і дати зйомки — відповім протягом дня.</p>
+  <a href="mailto:hello@nazariikozak.com" class="contact__email">hello@nazariikozak.com</a>
 
   <div class="contact__socials">
-    <a href="#" target="_blank" rel="noopener">Instagram</a>
-    <a href="#" target="_blank" rel="noopener">YouTube</a>
-    <a href="#" target="_blank" rel="noopener">Telegram</a>
+    <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+      <span>Instagram</span>
+    </a>
+    <a href="#" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.5 9.5l5 2.5-5 2.5v-5z" fill="currentColor" stroke="none"/></svg>
+      <span>YouTube</span>
+    </a>
+    <a href="#" target="_blank" rel="noopener" aria-label="Telegram">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 4L2.5 11.5l6 2 2 6 3-4 4.5 3.5L21 4z"/><path d="M8.5 13.5L19 6"/></svg>
+      <span>Telegram</span>
+    </a>
   </div>
 </section>
 
 <footer class="footer">
-  <span>© <span id="year"></span> Твоє Ім'я. Всі права захищені.</span>
-  <span>Знято в темряві.</span>
+  <span>© <span id="year"></span> Nazarii Kozak. Всі права захищені.</span>
+  <span>Filmmaker · Варшава · Європа</span>
 </footer>
 
 <script src="script.js"></script>
