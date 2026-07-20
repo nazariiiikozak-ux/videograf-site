@@ -1,9 +1,9 @@
 // Vercel Serverless Function: /api/submit
-// Приймає заявку з форми на сайті та відправляє її в Telegram-бот.
+// Receives a form submission from the site and forwards it to a Telegram bot.
 //
-// Потрібні змінні середовища (Vercel → Settings → Environment Variables):
-//   TELEGRAM_BOT_TOKEN — токен бота від @BotFather
-//   TELEGRAM_CHAT_ID   — chat_id, куди слати повідомлення
+// Required environment variables (Vercel -> Settings -> Environment Variables):
+//   TELEGRAM_BOT_TOKEN \u2014 bot token from @BotFather
+//   TELEGRAM_CHAT_ID   \u2014 chat id to deliver the message to
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,13 +13,13 @@ export default async function handler(req, res) {
 
   const { name, contact, message, dates, honeypot } = req.body || {};
 
-  // проста анти-спам пастка (прихована поле у формі)
+  // simple anti-spam trap (hidden field in the form)
   if (honeypot) {
     return res.status(200).json({ ok: true });
   }
 
   if (!name || !contact) {
-    return res.status(400).json({ ok: false, error: "Заповни ім'я та контакт" });
+    return res.status(400).json({ ok: false, error: "\u0417\u0430\u043f\u043e\u0432\u043d\u0438 \u0456\u043c'\u044f \u0442\u0430 \u043a\u043e\u043d\u0442\u0430\u043a\u0442" });
   }
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -31,14 +31,14 @@ export default async function handler(req, res) {
   }
 
   const lines = [
-    '📩 *Нова заявка з сайту*',
+    '\ud83d\udce9 *\u041d\u043e\u0432\u0430 \u0437\u0430\u044f\u0432\u043a\u0430 \u0437 \u0441\u0430\u0439\u0442\u0443*',
     '',
-    `*Імʼя:* ${escapeMd(name)}`,
-    `*Контакт:* ${escapeMd(contact)}`,
+    `*\u0406\u043c\u02bc\u044f:* ${escapeMd(name)}`,
+    `*\u041a\u043e\u043d\u0442\u0430\u043a\u0442:* ${escapeMd(contact)}`,
   ];
 
-  if (dates) lines.push(`*Дати зйомки:* ${escapeMd(dates)}`);
-  if (message) lines.push('', `*Опис проєкту:*`, escapeMd(message));
+  if (dates) lines.push(`*\u0414\u0430\u0442\u0438 \u0437\u0439\u043e\u043c\u043a\u0438:* ${escapeMd(dates)}`);
+  if (message) lines.push('', `*\u041e\u043f\u0438\u0441 \u043f\u0440\u043e\u0454\u043a\u0442\u0443:*`, escapeMd(message));
 
   const text = lines.join('\n');
 
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         chat_id: chatId,
         text,
-        parse_mode: 'Markdown',
+        parse_mode: 'MarkdownV2',
       }),
     });
 
@@ -67,6 +67,7 @@ export default async function handler(req, res) {
   }
 }
 
+// Escape text for Telegram MarkdownV2 (all reserved chars, incl. backslash).
 function escapeMd(str) {
-  return String(str).replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+  return String(str).replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
 }
