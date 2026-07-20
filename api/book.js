@@ -9,6 +9,23 @@ const redis = new Redis({
   token: process.env.KV_REST_API_TOKEN,
 });
 
+const HORIZON_DAYS = 30;
+const HOURS = Array.from({ length: 16 }, (_, i) => String(8 + i).padStart(2, '0') + ':00'); // 08:00..23:00
+
+function warsawToday() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Warsaw', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
+
+function withinHorizon(iso) {
+  const today = warsawToday();
+  if (iso < today) return false;
+  const [y, m, d] = today.split('-').map(Number);
+  const last = new Date(Date.UTC(y, m - 1, d) + (HORIZON_DAYS - 1) * 86400000).toISOString().slice(0, 10);
+  return iso <= last;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -29,10 +46,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // every requested hour must currently be offered by the owner
+    // day must be open (within horizon and not a day off)
+    if (!withinHorizon(date) || (await redis.sismember('blocked:dates', date))) {
+      return res.status(409).json({ ok: false, error: '\u0426\u0435\u0439 \u0434\u0435\u043d\u044c \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0438\u0439 \u0434\u043b\u044f \u0431\u0440\u043e\u043d\u044e\u0432\u0430\u043d\u043d\u044f' });
+    }
+    // each requested hour must be a real default slot and not blocked by the owner
+    const blockedHours = new Set((await redis.smembers('blocked:' + date)) || []);
     for (const t of list) {
-      const offered = await redis.sismember('avail:' + date, t);
-      if (!offered) {
+      if (!HOURS.includes(t) || blockedHours.has(t)) {
         return res.status(409).json({ ok: false, error: '\u041e\u0434\u043d\u0430 \u0437 \u043e\u0431\u0440\u0430\u043d\u0438\u0445 \u0433\u043e\u0434\u0438\u043d \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430' });
       }
     }
