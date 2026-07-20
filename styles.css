@@ -271,7 +271,7 @@ img{ display:block; max-width:100%; }
   50%{ opacity:0.9; transform:scale(1.08); }
 }
 
-/* ---- кутові мітки (в стилі референсу) ---- */
+/* ---- corner labels (editorial reference style) ---- */
 .hero__corner{
   position:absolute;
   z-index:3;
@@ -299,7 +299,7 @@ img{ display:block; max-width:100%; }
   .hero__corner{ display:none; }
 }
 
-/* ---- заголовок, що перекриває кадр ---- */
+/* ---- title overlapping the frame ---- */
 .hero__content{
   position:relative; z-index:2;
   padding:0 var(--pad);
@@ -327,7 +327,7 @@ img{ display:block; max-width:100%; }
   mix-blend-mode:screen;
 }
 
-/* ---- низ героя: теглайн + скрол ---- */
+/* ---- hero footer: tagline + scroll ---- */
 .hero__foot{
   position:relative; z-index:2;
   display:flex;
@@ -743,6 +743,104 @@ img{ display:block; max-width:100%; }
 }
 .contact__socials a:hover{ color:var(--ink); }
 .contact__socials svg{ color:inherit; }
+
+/* =====================================================
+   CONTACT FORM
+===================================================== */
+.contact__form{
+  position:relative; z-index:1;
+  max-width:640px;
+  margin:44px auto 0;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  text-align:left;
+}
+.form__row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+.form__field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.form__field span{
+  font-size:11px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--ink-mute);
+}
+.form__field span em{
+  font-style:normal;
+  text-transform:none;
+  letter-spacing:0;
+  opacity:0.7;
+}
+.form__field input,
+.form__field textarea{
+  background:rgba(243,236,226,0.04);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:12px 14px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:14px;
+  transition:border-color .25s ease, background .25s ease;
+  resize:vertical;
+}
+.form__field input::placeholder,
+.form__field textarea::placeholder{
+  color:var(--ink-mute);
+}
+.form__field input:focus,
+.form__field textarea:focus{
+  outline:none;
+  border-color:var(--ember-2);
+  background:rgba(193,112,47,0.06);
+}
+.form__honeypot{
+  position:absolute;
+  left:-9999px;
+  width:1px; height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+.form__submit{
+  align-self:flex-start;
+  border:none;
+  position:relative;
+}
+.form__submit.is-loading .form__submit-label{
+  opacity:0.5;
+}
+.form__submit:disabled{
+  cursor:not-allowed;
+  opacity:0.75;
+}
+.form__status{
+  font-size:13px;
+  min-height:18px;
+}
+.form__status.is-success{ color:var(--ember-2); }
+.form__status.is-error{ color:#e07a6a; }
+
+.contact__alt{
+  position:relative; z-index:1;
+  margin-top:28px;
+  color:var(--ink-mute);
+  font-size:13px;
+}
+.contact__alt .contact__email{
+  margin-top:0;
+  font-size:inherit;
+  padding-bottom:2px;
+}
+
+@media (max-width:640px){
+  .form__row{ grid-template-columns:1fr; }
+}
 
 /* =====================================================
    FOOTER
