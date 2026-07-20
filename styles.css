@@ -906,3 +906,16 @@ img{ display:block; max-width:100%; }
 .booking__time:hover{ border-color:var(--ember-2); color:var(--ink); }
 .booking__time.is-active{ border-color:var(--ember-2); background:var(--ember); color:#160b06; font-weight:600; }
 .booking__chosen{ font-size:14px; color:var(--ember-2); }
+
+/* booked/taken slot + booking hints */
+.booking__times-hint{ font-size:12px; color:var(--ink-mute); }
+.booking__warn{ font-size:13px; color:var(--ember-2); }
+.booking__time--taken{
+  cursor:not-allowed; opacity:0.6; color:var(--ink-mute);
+  border-style:dashed;
+  display:inline-flex; align-items:center; gap:7px;
+}
+.booking__time--taken i{
+  font-style:normal; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-mute);
+}
+.booking__time--taken:hover{ border-color:var(--line); color:var(--ink-mute); background:rgba(243,236,226,0.04); }
