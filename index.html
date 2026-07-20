@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ТВОЄ ІМ'Я — Відеограф</title>
+<meta name="description" content="Портфоліо відеографа. Зйомка, монтаж, кольорокорекція." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- film grain overlay -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- =============== NAV =============== -->
+<header class="nav">
+  <a href="#top" class="nav__mark">TI<span>.</span></a>
+
+  <nav class="nav__links">
+    <a href="#reel">Реел</a>
+    <a href="#about">Про мене</a>
+    <a href="#services">Послуги</a>
+    <a href="#contact">Контакт</a>
+  </nav>
+
+  <div class="nav__tc" id="timecode" aria-hidden="true">00:00:00:00</div>
+
+  <button class="nav__burger" id="burger" aria-label="Меню" aria-expanded="false">
+    <span></span><span></span>
+  </button>
+</header>
+
+<div class="nav__mobile" id="navMobile">
+  <a href="#reel">Реел</a>
+  <a href="#about">Про мене</a>
+  <a href="#services">Послуги</a>
+  <a href="#contact">Контакт</a>
+</div>
+
+<!-- =============== HERO =============== -->
+<section class="hero" id="top">
+  <div class="hero__media">
+    <!--
+      ЗАМІНИ ВІДЕО ТУТ:
+      1) Поклади свій файл у папку assets/ (напр. assets/showreel.mp4)
+      2) Онови src нижче у <source>
+      3) poster — кадр-заглушка, поки відео вантажиться
+    -->
+    <video class="hero__video" autoplay muted loop playsinline poster="assets/hero-portrait.jpg">
+      <source src="assets/showreel.mp4" type="video/mp4" />
+    </video>
+    <div class="hero__vignette"></div>
+    <div class="hero__ember"></div>
+  </div>
+
+  <!-- кутові мітки в редакційному стилі -->
+  <div class="hero__corner hero__corner--tl">
+    <span class="hero__corner-num">+380 00 000 00 00</span>
+    <span class="hero__corner-sub">Відеограф · Кольорист</span>
+  </div>
+  <div class="hero__corner hero__corner--tr">
+    <span class="hero__corner-num" id="heroClock">23:34</span>
+    <span class="hero__corner-sub">Зараз у Києві</span>
+  </div>
+
+  <div class="hero__content">
+    <h1 class="hero__title">
+      <span class="hero__title-line">ТВОЄ</span>
+      <span class="hero__title-line hero__title-line--ghost">ІМ'Я</span>
+    </h1>
+  </div>
+
+  <div class="hero__foot">
+    <p class="hero__tagline">
+      Лише я.<br>
+      Від зйомки до фінального кадру.<br>
+      Завжди на зв'язку.
+    </p>
+    <a href="#reel" class="hero__scroll">
+      <span>REEL</span>
+      <i></i>
+    </a>
+  </div>
+</section>
+
+<!-- =============== REEL / PORTFOLIO =============== -->
+<section class="reel" id="reel">
+  <div class="section__head">
+    <p class="section__tc">00:01</p>
+    <h2 class="section__title">Реел робіт</h2>
+    <p class="section__note">Наведи курсор, щоб переглянути прев'ю. Тягни, щоб гортати.</p>
+  </div>
+
+  <div class="reel__track" id="reelTrack">
+
+    <article class="reel__card">
+      <div class="reel__frame">
+        <!-- Заміни на своє відео/embed. Напр. <iframe> з YouTube або <video src="assets/project-1.mp4"> -->
+        <div class="reel__placeholder"></div>
+        <span class="reel__tag">Presents</span>
+        <button class="reel__expand" aria-label="Розгорнути">⤢</button>
+        <button class="reel__play" aria-label="Відтворити">▶</button>
+        <div class="reel__title-ov">ВЕСІЛЛЯ</div>
+        <div class="reel__words">
+          <span>Світло</span><span>Тиша</span><span>Момент</span>
+        </div>
+      </div>
+      <div class="reel__meta">
+        <span class="reel__num">01</span>
+        <div>
+          <h3>Назва проєкту</h3>
+          <p>Весілля · Кольорокорекція</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="reel__card">
+      <div class="reel__frame">
+        <div class="reel__placeholder reel__placeholder--2"></div>
+        <span class="reel__tag">Reel · 22</span>
+        <button class="reel__expand" aria-label="Розгорнути">⤢</button>
+        <button class="reel__play" aria-label="Відтворити">▶</button>
+        <div class="reel__title-ov">РЕКЛАМА</div>
+        <div class="reel__words">
+          <span>Ритм</span><span>Енергія</span><span>Бренд</span>
+        </div>
+      </div>
+      <div class="reel__meta">
+        <span class="reel__num">02</span>
+        <div>
+          <h3>Назва проєкту</h3>
+          <p>Рекламний ролик · Монтаж</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="reel__card">
+      <div class="reel__frame">
+        <div class="reel__placeholder reel__placeholder--3"></div>
+        <span class="reel__tag">Live</span>
+        <button class="reel__expand" aria-label="Розгорнути">⤢</button>
+        <button class="reel__play" aria-label="Відтворити">▶</button>
+        <div class="reel__title-ov">КЛІП</div>
+        <div class="reel__words">
+          <span>Звук</span><span>Рух</span><span>Настрій</span>
+        </div>
+      </div>
+      <div class="reel__meta">
+        <span class="reel__num">03</span>
+        <div>
+          <h3>Назва проєкту</h3>
+          <p>Музичний кліп · Зйомка</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="reel__card">
+      <div class="reel__frame">
+        <div class="reel__placeholder reel__placeholder--4"></div>
+        <span class="reel__tag">Story</span>
+        <button class="reel__expand" aria-label="Розгорнути">⤢</button>
+        <button class="reel__play" aria-label="Відтворити">▶</button>
+        <div class="reel__title-ov">ДОК. ФІЛЬМ</div>
+        <div class="reel__words">
+          <span>Правда</span><span>Час</span><span>Голос</span>
+        </div>
+      </div>
+      <div class="reel__meta">
+        <span class="reel__num">04</span>
+        <div>
+          <h3>Назва проєкту</h3>
+          <p>Документалка · Повний цикл</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="reel__card">
+      <div class="reel__frame">
+        <div class="reel__placeholder reel__placeholder--5"></div>
+        <span class="reel__tag">Brand</span>
+        <button class="reel__expand" aria-label="Розгорнути">⤢</button>
+        <button class="reel__play" aria-label="Відтворити">▶</button>
+        <div class="reel__title-ov">БРЕНД-ФІЛЬМ</div>
+        <div class="reel__words">
+          <span>Стиль</span><span>Колір</span><span>Ідея</span>
+        </div>
+      </div>
+      <div class="reel__meta">
+        <span class="reel__num">05</span>
+        <div>
+          <h3>Назва проєкту</h3>
+          <p>Бренд-фільм · Кольорокорекція</p>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- =============== ABOUT =============== -->
+<section class="about" id="about">
+  <div class="about__media">
+    <img src="assets/hero-portrait.jpg" alt="Портрет відеографа" loading="lazy" />
+  </div>
+  <div class="about__content">
+    <p class="section__tc">00:02</p>
+    <h2 class="section__title">Про мене</h2>
+    <p class="about__text">
+      Знімаю там, де світла мало, а сенсу багато. Мене цікавить не «красива картинка»,
+      а момент, який варто зупинити — тінь на обличчі, тиша перед реплікою, кадр,
+      що тримає напругу довше, ніж здається можливим.
+    </p>
+    <p class="about__text">
+      Працюю з рекламою, весіллями, музичними кліпами та документальними історіями.
+      Повний цикл: від сценарію та зйомки до монтажу й кольорокорекції.
+    </p>
+    <div class="about__stats">
+      <div>
+        <span>50+</span>
+        <p>завершених проєктів</p>
+      </div>
+      <div>
+        <span>6</span>
+        <p>років у кадрі</p>
+      </div>
+      <div>
+        <span>4K/6K</span>
+        <p>робочий формат</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== SERVICES =============== -->
+<section class="services" id="services">
+  <div class="section__head">
+    <p class="section__tc">00:03</p>
+    <h2 class="section__title">Послуги</h2>
+  </div>
+
+  <div class="services__list">
+    <div class="services__row">
+      <span class="services__time">00:01</span>
+      <h3>Відеозйомка</h3>
+      <p>Зйомка на локації одним чи кількома операторами, світло, звук.</p>
+      <span class="services__price">від 6 000 ₴</span>
+    </div>
+    <div class="services__row">
+      <span class="services__time">00:02</span>
+      <h3>Монтаж</h3>
+      <p>Збірка з чорнового матеріалу до фінального ролика, темп і структура.</p>
+      <span class="services__price">від 4 000 ₴</span>
+    </div>
+    <div class="services__row">
+      <span class="services__time">00:03</span>
+      <h3>Кольорокорекція</h3>
+      <p>Кольорове рішення сцени, вирівнювання плану, фінальний ґрейд.</p>
+      <span class="services__price">від 2 500 ₴</span>
+    </div>
+    <div class="services__row">
+      <span class="services__time">00:04</span>
+      <h3>Повний цикл</h3>
+      <p>Від сценарію та зйомки до монтажу, звуку й кольору — під ключ.</p>
+      <span class="services__price">індивідуально</span>
+    </div>
+  </div>
+</section>
+
+<!-- =============== CONTACT =============== -->
+<section class="contact" id="contact">
+  <div class="hero__ember hero__ember--contact"></div>
+  <p class="section__tc">00:04</p>
+  <h2 class="contact__title">Маєш<br>ідею?</h2>
+  <a href="mailto:hello@tvoyeimya.com" class="contact__email">hello@tvoyeimya.com</a>
+
+  <div class="contact__socials">
+    <a href="#" target="_blank" rel="noopener">Instagram</a>
+    <a href="#" target="_blank" rel="noopener">YouTube</a>
+    <a href="#" target="_blank" rel="noopener">Telegram</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <span>© <span id="year"></span> Твоє Ім'я. Всі права захищені.</span>
+  <span>Знято в темряві.</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
