@@ -1,6 +1,7 @@
 // Vercel Serverless Function: /api/slots
-// Public. Returns future slots (with booked status) for the site calendar.
-// Response: { ok: true, slots: { "2026-08-12": [ {t:"10:00",b:false}, {t:"13:00",b:true} ], ... } }
+// Public. Every day defaults to 08:00-23:00 available. Returns the next N days,
+// each hour with its booked status; owner-blocked days and hours are excluded.
+// Response: { ok, slots: { "YYYY-MM-DD": [ {t:"08:00",b:false}, {t:"09:00",b:true} ], ... } }
 
 import { Redis } from '@upstash/redis';
 
@@ -9,6 +10,15 @@ const redis = new Redis({
   token: process.env.KV_REST_API_TOKEN,
 });
 
+const HORIZON_DAYS = 30;
+const HOURS = Array.from({ length: 16 }, (_, i) => String(8 + i).padStart(2, '0') + ':00'); // 08:00..23:00
+
+function warsawToday() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Warsaw', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
@@ -16,24 +26,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    const dates = (await redis.smembers('avail:dates')) || [];
-    // "today" in Warsaw as YYYY-MM-DD, so past days drop off automatically
-    const today = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Europe/Warsaw',
-      year: 'numeric', month: '2-digit', day: '2-digit',
-    }).format(new Date());
+    const today = warsawToday();
+    const [y, m, d] = today.split('-').map(Number);
+    const base = Date.UTC(y, m - 1, d);
 
-    const future = dates.filter((d) => d >= today).sort();
+    const blockedDays = new Set((await redis.smembers('blocked:dates')) || []);
     const slots = {};
 
-    for (const date of future) {
-      const [avail, booked] = await Promise.all([
-        redis.smembers('avail:' + date),
-        redis.smembers('booked:' + date),
+    for (let i = 0; i < HORIZON_DAYS; i++) {
+      const iso = new Date(base + i * 86400000).toISOString().slice(0, 10);
+      if (blockedDays.has(iso)) continue;
+
+      const [booked, blockedHours] = await Promise.all([
+        redis.smembers('booked:' + iso),
+        redis.smembers('blocked:' + iso),
       ]);
-      if (!avail || !avail.length) continue;
       const bookedSet = new Set(booked || []);
-      slots[date] = avail.slice().sort().map((t) => ({ t, b: bookedSet.has(t) }));
+      const blockedSet = new Set(blockedHours || []);
+
+      const list = HOURS.filter((t) => !blockedSet.has(t)).map((t) => ({ t, b: bookedSet.has(t) }));
+      if (list.length) slots[iso] = list;
     }
 
     res.setHeader('Cache-Control', 'no-store');
