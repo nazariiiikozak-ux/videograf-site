@@ -919,3 +919,50 @@ img{ display:block; max-width:100%; }
   font-style:normal; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-mute);
 }
 .booking__time--taken:hover{ border-color:var(--line); color:var(--ink-mute); background:rgba(243,236,226,0.04); }
+
+/* =====================================================
+   PRELOADER
+===================================================== */
+.preloader{
+  position:fixed; inset:0; z-index:300;
+  background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  will-change:transform;
+  transition:transform 1s cubic-bezier(.76,0,.24,1);
+}
+.preloader.is-done{ transform:translateY(-100%); }
+.preloader__inner{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+}
+.preloader__mark{
+  font-family:var(--f-mark); font-weight:700; line-height:1;
+  font-size:clamp(48px,10vw,110px); letter-spacing:0.04em; color:var(--ink);
+  opacity:0; transform:translateY(14px);
+  animation:preIn .9s .1s cubic-bezier(.2,.7,.3,1) forwards;
+}
+.preloader__mark span{ color:var(--ember-2); }
+.preloader__word{
+  font-family:var(--f-body); font-size:12px; letter-spacing:0.35em; text-transform:uppercase;
+  color:var(--ink-mute);
+  opacity:0; transform:translateY(10px);
+  animation:preIn .9s .28s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes preIn{ to{ opacity:1; transform:translateY(0); } }
+.preloader__foot{
+  width:100%; max-width:var(--container); padding:0 var(--pad) 40px;
+  display:flex; align-items:center; gap:18px;
+}
+.preloader__bar{ flex:1; height:1px; background:var(--line); overflow:hidden; }
+.preloader__bar i{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg,var(--ember),var(--ember-2));
+}
+.preloader__count{
+  font-family:var(--f-body); font-size:13px; color:var(--ink-dim);
+  font-variant-numeric:tabular-nums; min-width:3ch; text-align:right;
+}
+body.is-loading{ overflow:hidden; height:100dvh; }
+@media (prefers-reduced-motion: reduce){
+  .preloader{ transition:none; }
+  .preloader__mark, .preloader__word{ animation:none; opacity:1; transform:none; }
+}
