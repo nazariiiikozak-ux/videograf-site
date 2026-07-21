@@ -1,3 +1,49 @@
+// ===== preloader (intro) =====
+(function () {
+  const pre = document.getElementById('preloader');
+  const clearLoading = () => document.body.classList.remove('is-loading');
+  if (!pre) { clearLoading(); return; }
+  const bar = document.getElementById('preloaderBar');
+  const countEl = document.getElementById('preloaderCount');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    pre.classList.add('is-done');
+    clearLoading();
+    setTimeout(() => { pre.style.display = 'none'; }, 1100);
+  }
+
+  if (reduce) { finish(); return; }
+
+  let progress = 0;
+  let loaded = false;
+  const start = performance.now();
+  const MIN_MS = 1400;
+  window.addEventListener('load', () => { loaded = true; });
+
+  function tick(now) {
+    if (done) return;
+    const elapsed = now - start;
+    const target = loaded ? 100 : Math.min(90, (elapsed / MIN_MS) * 100);
+    progress += (target - progress) * 0.08;
+    const shown = Math.min(100, Math.round(progress));
+    if (bar) bar.style.width = shown + '%';
+    if (countEl) countEl.textContent = shown;
+    if (shown >= 100 && loaded && elapsed >= MIN_MS) {
+      if (bar) bar.style.width = '100%';
+      if (countEl) countEl.textContent = 100;
+      setTimeout(finish, 250);
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  setTimeout(finish, 6000); // safety: never hang
+})();
+
 // ===== year in footer =====
 document.getElementById('year').textContent = new Date().getFullYear();
 
