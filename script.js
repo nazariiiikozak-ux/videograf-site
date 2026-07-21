@@ -119,18 +119,76 @@ document.querySelectorAll('.reel__track').forEach((track) => {
   });
 });
 
-// ===== Play buttons (stub -- replace with a real player/embed) =====
-document.querySelectorAll('.reel__play').forEach(btn => {
-  btn.addEventListener('click', () => {
-    alert('\u0422\u0443\u0442 \u0431\u0443\u0434\u0435 \u0432\u0456\u0434\u0442\u0432\u043e\u0440\u0435\u043d\u043d\u044f \u0432\u0456\u0434\u0435\u043e. \u0417\u0430\u043c\u0456\u043d\u0438 \u0446\u044e \u0434\u0456\u044e \u043d\u0430 \u0441\u0432\u0456\u0439 embed (YouTube/Vimeo iframe) \u0430\u0431\u043e <video> \u0443 reel__frame.');
-  });
+// ===== portfolio media playback (delegated -> works for admin-rendered cards too) =====
+function pfEmbed(url) {
+  const s = String(url);
+  const yt = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/))([\w-]{6,})/);
+  if (yt) return '<iframe src="https://www.youtube.com/embed/' + yt[1] + '?autoplay=1&rel=0&playsinline=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>';
+  const vim = s.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vim) return '<iframe src="https://player.vimeo.com/video/' + vim[1] + '?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+  if (/\.(mp4|webm|mov)(\?|#|$)/i.test(s)) return '<video src="' + s + '" autoplay controls playsinline></video>';
+  return null;
+}
+
+document.addEventListener('click', (e) => {
+  const play = e.target.closest('.reel__play');
+  if (play) {
+    const frame = play.closest('.reel__frame');
+    const url = frame && frame.getAttribute('data-video');
+    if (!url) return;
+    const embed = pfEmbed(url);
+    if (embed) frame.innerHTML = embed;
+    else window.open(url, '_blank', 'noopener');
+    return;
+  }
+  const exp = e.target.closest('.reel__expand');
+  if (exp) {
+    const frame = exp.closest('.reel__frame');
+    const url = frame && frame.getAttribute('data-video');
+    if (url) window.open(url, '_blank', 'noopener');
+  }
 });
 
-document.querySelectorAll('.reel__expand').forEach(btn => {
-  btn.addEventListener('click', () => {
-    alert('\u0422\u0443\u0442 \u043c\u043e\u0436\u043d\u0430 \u0432\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u043f\u043e\u0432\u043d\u0438\u0439 \u043a\u0435\u0439\u0441 \u043f\u0440\u043e\u0454\u043a\u0442\u0443 (\u043e\u043a\u0440\u0435\u043c\u0443 \u0441\u0442\u043e\u0440\u0456\u043d\u043a\u0443 \u0430\u0431\u043e \u043c\u043e\u0434\u0430\u043b\u044c\u043d\u0435 \u0432\u0456\u043a\u043d\u043e).');
-  });
-});
+// ===== portfolio cards from /api/portfolio (owner-managed via admin) =====
+function pfEsc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+function pfCardHTML(it, i) {
+  const wide = it.format === 'h' ? ' reel__card--wide' : '';
+  const gi = (i % 5) + 1;
+  const media = it.poster
+    ? '<img class="reel__poster" src="' + pfEsc(it.poster) + '" alt="" loading="lazy" />'
+    : '<div class="reel__placeholder' + (gi > 1 ? ' reel__placeholder--' + gi : '') + '"></div>';
+  const tag = it.tag ? '<span class="reel__tag">' + pfEsc(it.tag) + '</span>' : '';
+  const controls = it.video
+    ? '<button class="reel__play" aria-label="\u0412\u0456\u0434\u0442\u0432\u043e\u0440\u0438\u0442\u0438">\u25b6</button><button class="reel__expand" aria-label="\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438">\u2922</button>'
+    : '';
+  const ov = it.titleOv ? '<div class="reel__title-ov">' + pfEsc(it.titleOv) + '</div>' : '';
+  const dv = it.video ? ' data-video="' + pfEsc(it.video) + '"' : '';
+  return '<article class="reel__card' + wide + '">' +
+    '<div class="reel__frame"' + dv + '>' + media + tag + controls + ov + '</div>' +
+    '<div class="reel__meta"><span class="reel__num">' + String(i + 1).padStart(2, '0') + '</span>' +
+    '<div><h3>' + pfEsc(it.title || '') + '</h3><p>' + pfEsc(it.subtitle || '') + '</p></div></div>' +
+    '</article>';
+}
+(async function hydratePortfolio() {
+  try {
+    const res = await fetch('/api/portfolio', { cache: 'no-store' });
+    const d = await res.json();
+    if (!d || !d.ok || !d.stored || !Array.isArray(d.items)) return;
+    const vt = document.getElementById('reelTrack');
+    const ht = document.getElementById('filmsTrack');
+    const vs = d.items.filter((x) => x.format !== 'h');
+    const hs = d.items.filter((x) => x.format === 'h');
+    if (vt && vs.length) vt.innerHTML = vs.map((it, i) => pfCardHTML(it, i)).join('');
+    if (ht && hs.length) ht.innerHTML = hs.map((it, i) => pfCardHTML(it, i)).join('');
+    document.querySelectorAll('#reelTrack .reel__card, #filmsTrack .reel__card').forEach((el) => {
+      el.classList.add('reveal');
+      io.observe(el);
+    });
+  } catch (_) {}
+})();
 
 // ===== booking calendar -> /api/slots + /api/book -> Telegram =====
 const contactForm = document.getElementById('contactForm');
