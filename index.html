@@ -10,7 +10,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="is-loading">
+
+<!-- =============== PRELOADER =============== -->
+<div class="preloader" id="preloader">
+  <div class="preloader__inner">
+    <span class="preloader__mark">NK<span>.</span></span>
+    <span class="preloader__word">Filmmaker</span>
+  </div>
+  <div class="preloader__foot">
+    <div class="preloader__bar"><i id="preloaderBar"></i></div>
+    <span class="preloader__count" id="preloaderCount">0</span>
+  </div>
+</div>
 
 <!-- film grain overlay -->
 <div class="grain" aria-hidden="true"></div>
