@@ -351,3 +351,62 @@ if (contactForm) {
 
   loadSlots();
 }
+
+// ===== smooth scroll (Lenis) + scroll-scrubbed cinematic transitions (GSAP) =====
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !window.Lenis || !window.gsap || !window.ScrollTrigger) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const lenis = new Lenis({
+    duration: 1.1,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+  });
+
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+
+  // hold scroll while the preloader is up, then release
+  if (document.body.classList.contains('is-loading')) {
+    lenis.stop();
+    const obs = new MutationObserver(() => {
+      if (!document.body.classList.contains('is-loading')) { lenis.start(); obs.disconnect(); }
+    });
+    obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    setTimeout(() => lenis.start(), 7000);
+  }
+
+  // anchor nav (header + mobile menu) -> smooth scrollTo
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    const id = a.getAttribute('href');
+    if (!id || id.length < 2) return;
+    a.addEventListener('click', (e) => {
+      const target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      lenis.scrollTo(target, { offset: -60, duration: 1.2 });
+    });
+  });
+
+  // cinematic parallax \u2014 hero video drifts/scales as you scroll away
+  const heroMedia = document.querySelector('.hero__media');
+  if (heroMedia) {
+    gsap.to(heroMedia, {
+      scale: 1.14, ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
+    });
+  }
+  // subtle depth on the About portrait
+  const aboutImg = document.querySelector('.about__media img');
+  if (aboutImg) {
+    gsap.fromTo(aboutImg, { yPercent: -8 }, {
+      yPercent: 8, ease: 'none',
+      scrollTrigger: { trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: true },
+    });
+  }
+
+  ScrollTrigger.refresh();
+})();
