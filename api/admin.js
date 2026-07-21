@@ -53,6 +53,18 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const { action, date, time, times } = req.body || {};
 
+      // ---- portfolio actions (no date needed) ----
+      if (action === 'savePortfolio') {
+        const clean = sanitizePortfolio((req.body || {}).items);
+        if (clean === null) return res.status(400).json({ ok: false, error: '\u041d\u0435\u0432\u0456\u0440\u043d\u0456 \u0434\u0430\u043d\u0456 \u043f\u043e\u0440\u0442\u0444\u043e\u043b\u0456\u043e' });
+        await redis.set('portfolio', clean);
+        return res.status(200).json({ ok: true, portfolioSaved: true, count: clean.length });
+      }
+      if (action === 'resetPortfolio') {
+        await redis.del('portfolio');
+        return res.status(200).json({ ok: true, portfolioReset: true });
+      }
+
       if (!DATE_RE.test(date || '')) {
         return res.status(400).json({ ok: false, error: '\u041d\u0435\u0432\u0456\u0440\u043d\u0430 \u0434\u0430\u0442\u0430' });
       }
@@ -174,4 +186,19 @@ async function buildOverview() {
   }));
 
   return { hours: HOURS, today, blockedDays, blockedHours, pending, confirmed };
+}
+
+function sanitizePortfolio(items) {
+  if (!Array.isArray(items) || items.length > 60) return null;
+  const clip = (s, n) => String(s == null ? '' : s).slice(0, n);
+  return items.map((it, i) => ({
+    id: clip((it && it.id) || ('p' + Date.now() + i), 40),
+    format: (it && it.format) === 'h' ? 'h' : 'v',
+    tag: clip(it && it.tag, 40),
+    titleOv: clip(it && it.titleOv, 80),
+    title: clip(it && it.title, 80),
+    subtitle: clip(it && it.subtitle, 120),
+    video: clip(it && it.video, 400),
+    poster: clip(it && it.poster, 400),
+  }));
 }
