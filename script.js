@@ -97,9 +97,8 @@ const io = new IntersectionObserver((entries) => {
 
 revealTargets.forEach(el => io.observe(el));
 
-// ===== drag-to-scroll for the reel =====
-const track = document.getElementById('reelTrack');
-if (track) {
+// ===== drag-to-scroll for every portfolio track (vertical reels + horizontal films) =====
+document.querySelectorAll('.reel__track').forEach((track) => {
   let isDown = false;
   let startX;
   let scrollLeft;
@@ -118,7 +117,7 @@ if (track) {
     const walk = (x - startX) * 1.2;
     track.scrollLeft = scrollLeft - walk;
   });
-}
+});
 
 // ===== Play buttons (stub -- replace with a real player/embed) =====
 document.querySelectorAll('.reel__play').forEach(btn => {
