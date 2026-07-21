@@ -436,13 +436,17 @@ img{ display:block; max-width:100%; }
 .reel__track:active{ cursor:grabbing; }
 
 .reel__card{
-  flex:0 0 clamp(260px, 32vw, 400px);
+  flex:0 0 clamp(230px, 26vw, 320px);
   scroll-snap-align:start;
 }
+/* horizontal 16:9 films -- wider cards */
+.reel--films .section__head{ padding-top:40px; }
+.reel__card--wide{ flex:0 0 clamp(340px, 48vw, 640px); }
+.reel__card--wide .reel__frame{ aspect-ratio:16/9; }
 
 .reel__frame{
   position:relative;
-  aspect-ratio:4/5;
+  aspect-ratio:9/16;
   border-radius:2px;
   overflow:hidden;
   background:var(--bg-2);
