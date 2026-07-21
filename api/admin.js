@@ -1,14 +1,19 @@
 // Vercel Serverless Function: /api/admin
 // Password-protected. Every day defaults to 08:00-23:00; here the owner marks
-// days off / blocks individual hours, and views/cancels bookings.
+// days off / blocks individual hours, and confirms/declines/cancels bookings.
+// Requests arrive as PENDING holds (24h TTL) - the owner confirms or declines them.
 // Auth: header "x-admin-password" must equal process.env.ADMIN_PASSWORD.
 //
-// GET  -> { ok, hours, today, blockedDays:[...], blockedHours:{date:[...]}, bookings:[{date,times,name,contact,message}] }
-// POST { action:"blockDay",      date }
-// POST { action:"unblockDay",    date }
-// POST { action:"blockHour",     date, time }
-// POST { action:"unblockHour",   date, time }
-// POST { action:"cancelBooking", date, time | times }
+// GET  -> { ok, hours, today, blockedDays:[...], blockedHours:{date:[...]},
+//           pending:[{date,times,name,contact,message,createdAt,expiresInS}],
+//           confirmed:[{date,times,name,contact,message,createdAt}] }
+// POST { action:"blockDay",        date }
+// POST { action:"unblockDay",      date }
+// POST { action:"blockHour",       date, time }
+// POST { action:"unblockHour",     date, time }
+// POST { action:"confirmBooking",  date, time | times }   pending -> confirmed
+// POST { action:"declineBooking",  date, time | times }   drop pending, free slot
+// POST { action:"cancelBooking",   date, time | times }   drop confirmed, free slot
 
 import { Redis } from '@upstash/redis';
 
@@ -46,8 +51,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { action, date } = req.body || {};
-      const { time, times } = req.body || {};
+      const { action, date, time, times } = req.body || {};
 
       if (!DATE_RE.test(date || '')) {
         return res.status(400).json({ ok: false, error: '\u041d\u0435\u0432\u0456\u0440\u043d\u0430 \u0434\u0430\u0442\u0430' });
@@ -71,13 +75,22 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, ...(await buildOverview()) });
       }
 
-      if (action === 'cancelBooking') {
-        const list = Array.isArray(times) ? times : (time ? [time] : []);
+      if (action === 'confirmBooking' || action === 'declineBooking' || action === 'cancelBooking') {
+        const list = (Array.isArray(times) ? times : (time ? [time] : []))
+          .map((t) => String(t)).filter((t) => TIME_RE.test(t));
         for (const t of list) {
-          if (!TIME_RE.test(String(t))) continue;
-          await redis.srem('booked:' + date, t);
-          await redis.del('booking:' + date + ':' + t);
-          await redis.srem('bookings:index', date + '|' + t);
+          if (action === 'confirmBooking') {
+            await redis.sadd('confirmed:' + date, t); // permanent
+            await redis.del('hold:' + date + ':' + t); // drop the TTL hold
+            await redis.srem('held:' + date, t);
+          } else {
+            // decline (pending) or cancel (confirmed): free the slot entirely
+            await redis.srem('confirmed:' + date, t);
+            await redis.del('hold:' + date + ':' + t);
+            await redis.srem('held:' + date, t);
+            await redis.del('booking:' + date + ':' + t);
+            await redis.srem('bookings:index', date + '|' + t);
+          }
         }
         return res.status(200).json({ ok: true, ...(await buildOverview()) });
       }
@@ -109,23 +122,56 @@ async function buildOverview() {
     if (bh.length) blockedHours[iso] = bh.slice().sort();
   }
 
-  // group booked hours into whole bookings
+  // group active hours into whole bookings, tagged pending vs confirmed
   const idx = (await redis.smembers('bookings:index')) || [];
   const groups = {};
   for (const entry of idx) {
     const [date, time] = String(entry).split('|');
     if (!date || !time) continue;
+
+    const isConf = await redis.sismember('confirmed:' + date, time);
+    let status;
+    if (isConf) {
+      status = 'confirmed';
+    } else if (await redis.exists('hold:' + date + ':' + time)) {
+      status = 'pending';
+    } else {
+      // expired pending request - clean up and skip
+      await redis.srem('held:' + date, time);
+      await redis.del('booking:' + date + ':' + time);
+      await redis.srem('bookings:index', date + '|' + time);
+      continue;
+    }
+
     const rec = (await redis.get('booking:' + date + ':' + time)) || {};
-    const key = date + '#' + (rec.createdAt || '') + '#' + (rec.name || '') + '#' + (rec.contact || '');
+    const key = status + '#' + date + '#' + (rec.createdAt || '') + '#' + (rec.name || '') + '#' + (rec.contact || '');
     if (!groups[key]) {
-      groups[key] = { date, times: [], name: rec.name || '', contact: rec.contact || '', message: rec.message || '' };
+      groups[key] = {
+        date, status, times: [], firstTime: time,
+        name: rec.name || '', contact: rec.contact || '',
+        message: rec.message || '', createdAt: rec.createdAt || '',
+      };
     }
     groups[key].times.push(time);
   }
-  const bookings = Object.values(groups)
+
+  const all = Object.values(groups)
     .map((g) => ({ ...g, times: g.times.sort() }))
     .filter((g) => g.date >= today)
     .sort((a, b) => (a.date + (a.times[0] || '')).localeCompare(b.date + (b.times[0] || '')));
 
-  return { hours: HOURS, today, blockedDays, blockedHours, bookings };
+  const pending = [];
+  for (const g of all.filter((x) => x.status === 'pending')) {
+    const ttl = await redis.ttl('hold:' + g.date + ':' + g.firstTime); // seconds left
+    pending.push({
+      date: g.date, times: g.times, name: g.name, contact: g.contact,
+      message: g.message, createdAt: g.createdAt, expiresInS: ttl > 0 ? ttl : 0,
+    });
+  }
+  const confirmed = all.filter((x) => x.status === 'confirmed').map((g) => ({
+    date: g.date, times: g.times, name: g.name, contact: g.contact,
+    message: g.message, createdAt: g.createdAt,
+  }));
+
+  return { hours: HOURS, today, blockedDays, blockedHours, pending, confirmed };
 }
