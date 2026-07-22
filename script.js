@@ -306,22 +306,26 @@ if (contactForm) {
     if (!btn || !btn.dataset || !btn.dataset.time) return; // ignore taken slots
     const t = btn.dataset.time;
     const list = dayList();
-    const idx = (x) => list.findIndex((s) => s.t === x);
     warn('');
 
-    // second tap: form a contiguous range from the anchor
+    // second tap: form a contiguous CLOCK range from the anchor.
+    // Range is by clock hour (not array index), so a blocked/booked gap between
+    // the two picks is rejected instead of silently collapsing into two hours.
     if (anchor !== null && selected.length === 1) {
-      const i = idx(anchor), j = idx(t);
-      if (i === -1 || j === -1) { anchor = t; selected = [t]; paintSelection(); return; }
-      if (i === j) { selected = []; anchor = null; paintSelection(); return; } // re-tap = clear
-      const lo = Math.min(i, j), hi = Math.max(i, j);
-      const range = list.slice(lo, hi + 1);
-      if (range.some((s) => s.b)) {
+      const hourOf = (x) => parseInt(x, 10);
+      const a = hourOf(anchor), b = hourOf(t);
+      if (a === b) { selected = []; anchor = null; paintSelection(); return; } // re-tap = clear
+      const loH = Math.min(a, b), hiH = Math.max(a, b);
+      const wanted = [];
+      for (let h = loH; h <= hiH; h++) wanted.push(String(h).padStart(2, '0') + ':00');
+      const avail = new Map(list.map((s) => [s.t, s]));
+      const ok = wanted.every((w) => avail.has(w) && !avail.get(w).b);
+      if (!ok) {
         anchor = t; selected = [t]; paintSelection();
-        warn('\u041c\u0456\u0436 \u043d\u0438\u043c\u0438 \u0454 \u0437\u0430\u0439\u043d\u044f\u0442\u0430 \u0433\u043e\u0434\u0438\u043d\u0430 \u2014 \u043e\u0431\u0435\u0440\u0456\u0442\u044c \u0441\u0443\u0446\u0456\u043b\u044c\u043d\u0438\u0439 \u043f\u0440\u043e\u043c\u0456\u0436\u043e\u043a.');
+        warn('\u041c\u0456\u0436 \u043d\u0438\u043c\u0438 \u0454 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u0433\u043e\u0434\u0438\u043d\u0430 \u2014 \u043e\u0431\u0435\u0440\u0456\u0442\u044c \u0441\u0443\u0446\u0456\u043b\u044c\u043d\u0438\u0439 \u043f\u0440\u043e\u043c\u0456\u0436\u043e\u043a.');
         return;
       }
-      selected = range.map((s) => s.t);
+      selected = wanted;
       anchor = null; // range done; next tap starts fresh
       paintSelection();
       return;
