@@ -31,7 +31,7 @@
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
 
   /* ---- glass card ---- */
-  .card{ position:relative; z-index:5; width:100%; max-width:480px;
+  .card{ position:relative; z-index:5; width:100%; max-width:1040px;
     background:rgba(20,13,10,0.42);
     -webkit-backdrop-filter:blur(26px) saturate(1.2); backdrop-filter:blur(26px) saturate(1.2);
     border:1px solid rgba(243,236,226,0.14); border-radius:22px;
@@ -116,40 +116,7 @@
   <h1>&#1047;&#1072;&#1073;&#1088;&#1086;&#1085;&#1102;&#1074;&#1072;&#1090;&#1080;<br>&#1079;&#1081;&#1086;&#1084;&#1082;&#1091;</h1>
   <p class="sub">&#1054;&#1073;&#1077;&#1088;&#1080; &#1074;&#1110;&#1083;&#1100;&#1085;&#1091; &#1076;&#1072;&#1090;&#1091; &#1081; &#1095;&#1072;&#1089; &#8212; &#1087;&#1110;&#1076;&#1090;&#1074;&#1077;&#1088;&#1076;&#1078;&#1091; &#1087;&#1088;&#1086;&#1090;&#1103;&#1075;&#1086;&#1084; &#1076;&#1085;&#1103;.</p>
 
-  <form id="bookForm" novalidate>
-    <div class="row">
-      <label class="field">
-        <span>&#1030;&#1084;'&#1103;</span>
-        <input type="text" name="name" autocomplete="name" required />
-      </label>
-      <label class="field">
-        <span>&#1058;&#1077;&#1083;&#1077;&#1092;&#1086;&#1085; / Telegram / Email</span>
-        <input type="text" name="contact" autocomplete="tel" required />
-      </label>
-    </div>
-
-    <div class="field">
-      <span>&#1044;&#1072;&#1090;&#1072; &#1081; &#1095;&#1072;&#1089;</span>
-      <p class="bk__hint" id="bkDatesHint">&#1047;&#1072;&#1074;&#1072;&#1085;&#1090;&#1072;&#1078;&#1077;&#1085;&#1085;&#1103; &#1074;&#1110;&#1083;&#1100;&#1085;&#1080;&#1093; &#1076;&#1072;&#1090;&#8230;</p>
-      <div class="bk__dates" id="bkDates"></div>
-      <p class="bk__hint" id="bkTimesHint" hidden>&#1058;&#1072;&#1087;&#1085;&#1080; &#1087;&#1077;&#1088;&#1096;&#1091; &#1074;&#1110;&#1083;&#1100;&#1085;&#1091; &#1075;&#1086;&#1076;&#1080;&#1085;&#1091;, &#1087;&#1086;&#1090;&#1110;&#1084; &#1086;&#1089;&#1090;&#1072;&#1085;&#1085;&#1102; &#8212; &#1079;&#1072;&#1073;&#1088;&#1086;&#1085;&#1102;&#1108;&#1096; &#1091;&#1074;&#1077;&#1089;&#1100; &#1087;&#1088;&#1086;&#1084;&#1110;&#1078;&#1086;&#1082;.</p>
-      <div class="bk__times" id="bkTimes" hidden></div>
-      <p class="bk__chosen" id="bkChosen" hidden></p>
-      <p class="bk__warn" id="bkWarn" hidden></p>
-      <input type="hidden" name="date" id="bkDate" />
-      <input type="hidden" name="times" id="bkTimesInput" />
-    </div>
-
-    <label class="field">
-      <span>&#1054;&#1087;&#1080;&#1089; &#1087;&#1088;&#1086;&#1108;&#1082;&#1090;&#1091; <em style="font-style:normal;opacity:.6">(&#1085;&#1077;&#1086;&#1073;&#1086;&#1074;'&#1103;&#1079;&#1082;&#1086;&#1074;&#1086;)</em></span>
-      <textarea name="message" rows="2" placeholder="&#1065;&#1086; &#1079;&#1085;&#1110;&#1084;&#1072;&#1108;&#1084;&#1086;, &#1076;&#1077;, &#1092;&#1086;&#1088;&#1084;&#1072;&#1090;&#8230;"></textarea>
-    </label>
-
-    <input type="text" name="honeypot" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
-
-    <button type="submit" class="submit" id="submitBtn">&#1047;&#1072;&#1073;&#1088;&#1086;&#1085;&#1102;&#1074;&#1072;&#1090;&#1080; &#1079;&#1081;&#1086;&#1084;&#1082;&#1091;</button>
-    <p class="status" id="status" role="status" aria-live="polite"></p>
-  </form>
+  <div id="cal-inline-book" style="min-height:640px;width:100%;overflow:hidden;text-align:left;"></div>
 
   <div class="socials" aria-label="&#1057;&#1086;&#1094;&#1110;&#1072;&#1083;&#1100;&#1085;&#1110; &#1084;&#1077;&#1088;&#1077;&#1078;&#1110;">
     <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
@@ -164,141 +131,11 @@
   </div>
 </main>
 
-<script>
-  const form = document.getElementById('bookForm');
-  const statusEl = document.getElementById('status');
-  const submitBtn = document.getElementById('submitBtn');
-  const datesEl = document.getElementById('bkDates');
-  const datesHint = document.getElementById('bkDatesHint');
-  const timesEl = document.getElementById('bkTimes');
-  const timesHint = document.getElementById('bkTimesHint');
-  const chosenEl = document.getElementById('bkChosen');
-  const warnEl = document.getElementById('bkWarn');
-  const dateInput = document.getElementById('bkDate');
-  const timesInput = document.getElementById('bkTimesInput');
-
-  let slots = {};
-  let selected = [];
-  let anchor = null;
-
-  const WEEKDAYS = ['\u041d\u0434', '\u041f\u043d', '\u0412\u0442', '\u0421\u0440', '\u0427\u0442', '\u041f\u0442', '\u0421\u0431'];
-  const MONTHS = ['\u0441\u0456\u0447', '\u043b\u044e\u0442', '\u0431\u0435\u0440', '\u043a\u0432\u0456', '\u0442\u0440\u0430', '\u0447\u0435\u0440', '\u043b\u0438\u043f', '\u0441\u0435\u0440', '\u0432\u0435\u0440', '\u0436\u043e\u0432', '\u043b\u0438\u0441', '\u0433\u0440\u0443'];
-
-  function fmt(iso) {
-    const [y, m, d] = iso.split('-').map(Number);
-    const wd = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-    return { wd: WEEKDAYS[wd], day: d, mon: MONTHS[m - 1] };
-  }
-  function dayList() { return slots[dateInput.value] || []; }
-  function warn(msg) { if (!msg) { warnEl.hidden = true; return; } warnEl.textContent = msg; warnEl.hidden = false; }
-
-  async function loadSlots() {
-    try {
-      const res = await fetch('/api/slots');
-      const data = await res.json();
-      slots = data && data.ok && data.slots ? data.slots : {};
-    } catch (_) { slots = {}; }
-    renderDates();
-  }
-
-  function renderDates() {
-    const dates = Object.keys(slots).sort();
-    if (!dates.length) {
-      datesHint.textContent = '\u041d\u0430\u0440\u0430\u0437\u0456 \u0432\u0456\u043b\u044c\u043d\u0438\u0445 \u0434\u0430\u0442 \u043d\u0435\u043c\u0430\u0454 \u2014 \u043d\u0430\u043f\u0438\u0448\u0438 \u0432 \u0441\u043e\u0446\u043c\u0435\u0440\u0435\u0436\u0456, \u0443\u0437\u0433\u043e\u0434\u0438\u043c\u043e \u0447\u0430\u0441.';
-      datesEl.innerHTML = ''; timesEl.hidden = true; timesHint.hidden = true;
-      return;
-    }
-    datesHint.hidden = true;
-    datesEl.innerHTML = dates.map((iso) => {
-      const l = fmt(iso);
-      return '<button type="button" class="bk__date" data-date="' + iso + '">' +
-        '<span class="wd">' + l.wd + '</span><span class="d">' + l.day + '</span><span class="m">' + l.mon + '</span></button>';
-    }).join('');
-  }
-
-  function renderTimes(iso) {
-    const list = slots[iso] || [];
-    timesEl.innerHTML = list.map((s) =>
-      s.b
-        ? '<span class="bk__time bk__time--taken" aria-disabled="true">' + s.t + '<i>\u0437\u0430\u0439\u043d\u044f\u0442\u043e</i></span>'
-        : '<button type="button" class="bk__time" data-time="' + s.t + '">' + s.t + '</button>'
-    ).join('');
-    timesEl.hidden = false; timesHint.hidden = false;
-  }
-
-  function paint() {
-    timesEl.querySelectorAll('.bk__time').forEach((el) => {
-      const t = el.dataset ? el.dataset.time : null;
-      el.classList.toggle('on', !!t && selected.includes(t));
-    });
-    timesInput.value = selected.join(',');
-    if (!selected.length) { chosenEl.hidden = true; return; }
-    const [y, m, d] = dateInput.value.split('-');
-    const label = selected.length === 1 ? selected[0]
-      : selected[0] + '\u2013' + selected[selected.length - 1] + ' \u00b7 ' + selected.length + ' \u0433\u043e\u0434';
-    chosenEl.textContent = '\u041e\u0431\u0440\u0430\u043d\u043e: ' + d + '.' + m + '.' + y + ', ' + label;
-    chosenEl.hidden = false;
-  }
-
-  datesEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('.bk__date');
-    if (!btn) return;
-    datesEl.querySelectorAll('.bk__date').forEach((b) => b.classList.remove('on'));
-    btn.classList.add('on');
-    dateInput.value = btn.dataset.date;
-    selected = []; anchor = null; warn('');
-    renderTimes(btn.dataset.date); paint();
-  });
-
-  timesEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('.bk__time');
-    if (!btn || !btn.dataset || !btn.dataset.time) return;
-    const t = btn.dataset.time;
-    const list = dayList();
-    const idx = (x) => list.findIndex((s) => s.t === x);
-    warn('');
-    if (anchor !== null && selected.length === 1) {
-      const i = idx(anchor), j = idx(t);
-      if (i === -1 || j === -1) { anchor = t; selected = [t]; paint(); return; }
-      if (i === j) { selected = []; anchor = null; paint(); return; }
-      const lo = Math.min(i, j), hi = Math.max(i, j);
-      const range = list.slice(lo, hi + 1);
-      if (range.some((s) => s.b)) { anchor = t; selected = [t]; paint(); warn('\u041c\u0456\u0436 \u043d\u0438\u043c\u0438 \u0454 \u0437\u0430\u0439\u043d\u044f\u0442\u0430 \u0433\u043e\u0434\u0438\u043d\u0430 \u2014 \u043e\u0431\u0435\u0440\u0456\u0442\u044c \u0441\u0443\u0446\u0456\u043b\u044c\u043d\u0438\u0439 \u043f\u0440\u043e\u043c\u0456\u0436\u043e\u043a.'); return; }
-      selected = range.map((s) => s.t); anchor = null; paint(); return;
-    }
-    if (selected.length === 1 && selected[0] === t) { selected = []; anchor = null; paint(); return; }
-    anchor = t; selected = [t]; paint();
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    statusEl.textContent = ''; statusEl.className = 'status';
-    const data = Object.fromEntries(new FormData(form).entries());
-    if (!data.name || !data.contact) { statusEl.textContent = "\u0417\u0430\u043f\u043e\u0432\u043d\u0438 \u0456\u043c'\u044f \u0442\u0430 \u043a\u043e\u043d\u0442\u0430\u043a\u0442."; statusEl.className = 'status err'; return; }
-    if (!data.date || !data.times) { statusEl.textContent = '\u041e\u0431\u0435\u0440\u0438 \u0434\u0430\u0442\u0443 \u0439 \u0445\u043e\u0447\u0430 \u0431 \u043e\u0434\u043d\u0443 \u0433\u043e\u0434\u0438\u043d\u0443.'; statusEl.className = 'status err'; return; }
-    submitBtn.disabled = true;
-    try {
-      const res = await fetch('/api/book', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      let result = {}; try { result = await res.json(); } catch (_) {}
-      if (res.status === 409) {
-        statusEl.textContent = result.error || '\u041e\u0434\u043d\u0443 \u0437 \u0433\u043e\u0434\u0438\u043d \u0449\u043e\u0439\u043d\u043e \u0437\u0430\u0439\u043d\u044f\u043b\u0438 \u2014 \u043e\u0431\u0435\u0440\u0438 \u0437\u043d\u043e\u0432\u0443.'; statusEl.className = 'status err';
-        selected = []; anchor = null; const keep = dateInput.value;
-        await loadSlots();
-        if (keep && slots[keep]) { const db = datesEl.querySelector('.bk__date[data-date="' + keep + '"]'); if (db) db.classList.add('on'); dateInput.value = keep; renderTimes(keep); }
-        paint(); return;
-      }
-      if (!res.ok || !result.ok) throw new Error(result.error || '\u041f\u043e\u043c\u0438\u043b\u043a\u0430');
-      form.reset(); dateInput.value = ''; timesInput.value = ''; selected = []; anchor = null;
-      chosenEl.hidden = true; warn(''); timesEl.hidden = true; timesHint.hidden = true;
-      datesEl.querySelectorAll('.bk__date').forEach((b) => b.classList.remove('on'));
-      statusEl.textContent = '\u0417\u0430\u044f\u0432\u043a\u0443 \u043d\u0430\u0434\u0456\u0441\u043b\u0430\u043d\u043e! \u041e\u0447\u0456\u043a\u0443\u0454 \u043f\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043d\u043d\u044f \u2014 \u0437\u0432\u02bc\u044f\u0436\u0443\u0441\u044c \u0456\u0437 \u0442\u043e\u0431\u043e\u044e \u043d\u0430\u0439\u0431\u043b\u0438\u0436\u0447\u0438\u043c \u0447\u0430\u0441\u043e\u043c.'; statusEl.className = 'status ok';
-      await loadSlots();
-    } catch (err) {
-      statusEl.textContent = '\u041d\u0435 \u0432\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0431\u0440\u043e\u043d\u044e\u0432\u0430\u0442\u0438. \u0421\u043f\u0440\u043e\u0431\u0443\u0439 \u0449\u0435 \u0440\u0430\u0437.'; statusEl.className = 'status err';
-    } finally { submitBtn.disabled = false; }
-  });
-
-  loadSlots();
+<script type="text/javascript">
+(function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+Cal("init", { origin: "https://cal.com" });
+Cal("inline", { elementOrSelector: "#cal-inline-book", calLink: "nazarii-kozak-pguwss", layout: "month_view" });
+Cal("ui", { theme: "dark", cssVarsPerTheme: { dark: { "cal-brand": "#9aa0aa" } }, hideEventTypeDetails: false, layout: "month_view" });
 </script>
 </body>
 </html>
